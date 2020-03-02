@@ -51,7 +51,6 @@ void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
     close(s);
 }
 
-
 // Retourne l'adresse ip d'une connexion active
 static int socketVersNomUDP(struct sockaddr *padresse, char *nom)
 {
@@ -177,6 +176,7 @@ int boucleServeurTCP(int socket, void (*traitement)(int, char *))
             perror("socketVersNom");
 
         // callback function
+        // il faut un thread
         traitement(socket_dialogue, char_ip);
     }
     return 0;
@@ -264,7 +264,7 @@ int boucleServeurUDP(int s, void (*traitement)(unsigned char *, int, char *))
     return 0;
 }
 
-// Initialise un client TCP
+// Initialise un client TCP, et renvoie la socket de connexion
 int openTCPClient(char *hote, int port)
 {
     int s;
