@@ -18,16 +18,3 @@ int main() {
     return 0;
 }
 
-//messages réguliers indiquant le nom du bot, son état (actif/inactif) et la liste des charges utiles dont il dispose
-//messages indiquant le début ou la un d'une tâche lancée par un serveur C&C
-
-struct protocole {
-    char nom[10];
-    char etat //(oBXXXXXXXX);
-    liste_charge;
-
-};
-
-struct charge {
-
-};

@@ -7,7 +7,15 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
-//#include <libnetwork.h>
+#include <libnetwork.h>
+
+
+// function for chat
+void (*traitement)(int s){
+    char *hello = "Hello from CC";
+    write(s,(void*)hello,strlen(hello));
+}
+   
 
 int main()
 {
@@ -42,9 +50,11 @@ int main()
         printf("connected to the server..\n");
     }
 
-    // function for chat
-    write(s,(void*)hello,strlen(hello));
+    
 
+    boucleServeurTCP(s, traitement(s));
     // close the socket
     close(s);
+
+
 }

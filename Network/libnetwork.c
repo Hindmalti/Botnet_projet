@@ -154,32 +154,28 @@ int initialisationServeurTCP(char *service)
     return s;
 }
 
-// Accepte toutes les connexions au serveur TCP et execute la fonction en argument
-int boucleServeurTCP(int socket, void (*traitement)(int, char *))
-{
-    while (1)
-    {
-        // accept connection
-        struct sockaddr ip_src;
-        socklen_t ip_len = sizeof(struct sockaddr);
-        int socket_dialogue = accept(socket, &ip_src, &ip_len);
-        if (socket_dialogue < 0)
-        {
-            perror("boucleServeur.accept");
-            return -1;
-        }
+/**
+ *  boucleServeur(int ecoute, void (*traitement)(int))
+ *  Fonction boucle du serveur gérant les connexions entrantes des clients.
+ *
+ *  ecoute Socket d'écoute correspondant à la socket TCP bind.
+ *  traitement Fonction de traitement de la socket de connexion du client.
+ *
+ * return 0 si aucune erreur, -1 sinon.
+ */
 
-        // get ip addr
-        char char_ip[20];
-        int status = socketVersNomTCP(socket_dialogue, char_ip);
-        if (status < 0)
-            perror("socketVersNom");
+int boucleServeurTCP(int ecoute, void (*traitement)(int)) {
 
-        // callback function
-        // il faut un thread
-        traitement(socket_dialogue, char_ip);
+    int dialogue;
+
+    while(1) {
+        /*Attente d'une connexion*/
+        if((dialogue = accept(ecoute, NULL, NULL)) < 0) return -1;
+        /*Passage de la socket de dialogue a la fonction de traitement*/
+        traitement(dialogue);
     }
     return 0;
+
 }
 
 // Creation d'un serveur UDP
