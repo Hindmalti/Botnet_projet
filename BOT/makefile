@@ -4,7 +4,7 @@ LIBS= -lnetwork -lthrd -lpthread -L ../libs
 
 all: compile
 
-debug: FLAGS += -DDEBUG
+debug: FLAGS += -DDEBUG -g
 debug: compile
 
 clean:

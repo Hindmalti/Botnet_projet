@@ -40,15 +40,25 @@ void nouveauClient(int dialogue)
         exit(-1);
     }
 }
+void EnvoieUDPBroadcast(){
+    char *hello = "Hello from Bot UDP Broadcast";
+    
+    while (1)
+    {
+        sendUDPBroadcast((unsigned char *)hello, strlen(hello), 23232);
+        sleep(5);
+    } 
+}
 
 int main()
 { // PARTIE UDP
-    /*  //Msg à envoyer à tout le monde en UDP
-    char *hello = "Hello from Bot";
-    while (1)
+    int socketUDP;
+    //Msg à envoyer à tout le monde en UDP
+    if (lanceThread(EnvoieUDPBroadcast,(void *)&socketUDP, sizeof(socketUDP)) < 0)
     {
-        sendUDPBroadcast((unsigned char *)hello, strlen(hello), 5000);
-    } */
+        perror("nouveauClient.lanceThread");
+        exit(-1);
+    }
     // PARTIE SERVEUR TCP
     char port_s[6] = "2020";
     int s;
