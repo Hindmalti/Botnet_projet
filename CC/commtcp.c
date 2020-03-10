@@ -52,7 +52,6 @@ int main()
             // close the socket
             
         }
-    
     close(s);
     return 0;
 }
