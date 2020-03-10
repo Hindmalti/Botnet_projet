@@ -1,6 +1,6 @@
 TARGET=commudp
 FLAGS=-Wall -Wextra -I ../libs
-LIBS= -lnetwork -L ../libs
+LIBS= -lnetwork -lthrd -lpthread -L ../libs
 
 all: compile
 
@@ -8,13 +8,13 @@ debug: FLAGS += -DDEBUG
 debug: compile
 
 clean:
-	rm -f *.o *.out
-	rm -f ../bin/$(TARGET).out
+	rm -f *.o *
+	rm -f ../bin/$(TARGET)
 
 exec: compile
-	./$(TARGET).out
+	./$(TARGET)
 
 compile:
-	gcc *.c -o $(TARGET).out $(LIBS) $(FLAGS)
+	gcc *.c -o $(TARGET) $(LIBS) $(FLAGS)
 	mkdir -p ../bin
-	cp $(TARGET).out ../bin/
+	cp $(TARGET) ../bin/
