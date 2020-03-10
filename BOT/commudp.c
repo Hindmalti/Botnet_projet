@@ -11,8 +11,7 @@
 #include <libnetwork.h>
 #include <errno.h>
 
-int nombre_thread_tcp;
-int nombre_thread_udp;
+
 // Fonction du thread et qui continue le chat en TCP avec le CC
 void gestionClient(void *s)
 {
@@ -26,9 +25,6 @@ void gestionClient(void *s)
         exit(EXIT_FAILURE);
     }
     fclose(dialogue);
-    P(MUTEX_THREAD);
-    nombre_thread_tcp--;
-    V(MUTEX_THREAD); 
 
     return;
 }
@@ -43,9 +39,6 @@ void nouveauClient(int dialogue)
         perror("nouveauClient.lanceThread");
         exit(-1);
     }
-    P(MUTEX_THREAD);
-    nombre_thread_tcp++;
-    V(MUTEX_THREAD);
 }
 
 int main()
@@ -59,8 +52,6 @@ int main()
     // PARTIE SERVEUR TCP
     char port_s[6] = "2020";
     int s;
-    nombre_thread_tcp = 0;
-    nombre_thread_udp = 0;
 
     s = initialisationServeurTCP(port_s);
     /* Initialisation du serveur */
@@ -69,16 +60,6 @@ int main()
         fprintf(stderr, "Initialisation du serveur impossible\n");
         exit(-1);
     }
-
-    /* Lancement du serveur de messages UDP */
-    /*     if (lanceThread(_serveurMessages, NULL, 0))
-    {
-        perror("nouveauClient.lanceThread");
-        exit(-1);
-    }
-    P(MUTEX_THREAD);
-    nombre_thread_udp++;
-    V(MUTEX_THREAD); */
 
     /* Lancement de la boucle d'ecoute */
     if (boucleServeurTCP(s, nouveauClient) < 0)
