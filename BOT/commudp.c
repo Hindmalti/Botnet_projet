@@ -34,10 +34,10 @@ void gestionClient(void *s)
     return;
 }
 
-void nouveauClient(int dialogue, char *msg)
+void nouveauClient(int dialogue)
 {
     char *recu = "SAlut CC, je suis le BOT et je te reçois";
-    write(dialogue,msg,strlen(msg));
+    write(dialogue,recu,strlen(recu));
  /*    if (lanceThread(gestionClient, (void *)&dialogue, sizeof(int)))
     {
         perror("nouveauClient.lanceThread");
