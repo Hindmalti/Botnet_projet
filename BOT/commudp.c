@@ -13,10 +13,10 @@
 
 int nombre_thread_tcp;
 int nombre_thread_udp;
-
+// Fonction du thread et qui continue le chat en TCP avec le CC
 void gestionClient(void *s)
 {
-
+    printf("chui dans le gestionclient wéwéwé donc dans le thread");
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
     FILE *dialogue = fdopen(socket, "a+");
@@ -26,53 +26,55 @@ void gestionClient(void *s)
         exit(EXIT_FAILURE);
     }
     fclose(dialogue);
-    
+
     P(MUTEX_THREAD);
     nombre_thread_tcp--;
-    V(MUTEX_THREAD);
+    V(MUTEX_THREAD); 
 
     return;
 }
-
+// Fonction qui lance le thread
 void nouveauClient(int dialogue)
 {
-    char *recu = "SAlut CC, je suis le BOT et je te reçois";
-    write(dialogue,recu,strlen(recu));
- /*    if (lanceThread(gestionClient, (void *)&dialogue, sizeof(int)))
+
+    char *recu = "Salut CC, je suis le serveur du BOT et je te recois";
+    write(dialogue, recu, strlen(recu));
+    printf("dans nouveau client je vais lancer le thread\n");
+    if (lanceThread(gestionClient, (void *) (intptr_t)dialogue, sizeof(dialogue)) < 0)
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
     }
+    printf("tout v bien \n");
     P(MUTEX_THREAD);
     nombre_thread_tcp++;
-    V(MUTEX_THREAD); */
+    V(MUTEX_THREAD);
 }
 
 int main()
-{
-    // PARTIE UDP 
-   /*  //Msg à envoyer à tout le monde en UDP
+{ // PARTIE UDP
+    /*  //Msg à envoyer à tout le monde en UDP
     char *hello = "Hello from Bot";
     while (1)
     {
         sendUDPBroadcast((unsigned char *)hello, strlen(hello), 5000);
     } */
-
     // PARTIE SERVEUR TCP
-    char port_s[6]="2020";
+    char port_s[6] = "2020";
     int s;
     nombre_thread_tcp = 0;
     nombre_thread_udp = 0;
-    
+
+    s = initialisationServeurTCP(port_s);
     /* Initialisation du serveur */
-    if ((s = initialisationServeurTCP(port_s)) < 0)
+    if (s < 0)
     {
-        fprintf(stderr, "Initialisation du serveur impossible, êtes vous root ?\n");
+        fprintf(stderr, "Initialisation du serveur impossible\n");
         exit(-1);
     }
 
     /* Lancement du serveur de messages UDP */
-/*     if (lanceThread(_serveurMessages, NULL, 0))
+    /*     if (lanceThread(_serveurMessages, NULL, 0))
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
