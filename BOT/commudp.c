@@ -16,7 +16,7 @@ int nombre_thread_udp;
 // Fonction du thread et qui continue le chat en TCP avec le CC
 void gestionClient(void *s)
 {
-    printf("chui dans le gestionclient wéwéwé donc dans le thread");
+   
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
     FILE *dialogue = fdopen(socket, "a+");
@@ -26,7 +26,6 @@ void gestionClient(void *s)
         exit(EXIT_FAILURE);
     }
     fclose(dialogue);
-
     P(MUTEX_THREAD);
     nombre_thread_tcp--;
     V(MUTEX_THREAD); 
@@ -39,13 +38,11 @@ void nouveauClient(int dialogue)
 
     char *recu = "Salut CC, je suis le serveur du BOT et je te recois";
     write(dialogue, recu, strlen(recu));
-    printf("dans nouveau client je vais lancer le thread\n");
-    if (lanceThread(gestionClient, (void *) (intptr_t)dialogue, sizeof(dialogue)) < 0)
+    if (lanceThread(gestionClient,(void *)&dialogue, sizeof(dialogue)) < 0)
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
     }
-    printf("tout v bien \n");
     P(MUTEX_THREAD);
     nombre_thread_tcp++;
     V(MUTEX_THREAD);
