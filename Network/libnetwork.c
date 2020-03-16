@@ -1,16 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stddef.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <netdb.h>
+#include <string.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netdb.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <netinet/udp.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
-#include <netinet/ip.h>
-#include <string.h>
-#include <stdio.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <stdint.h>
+#include <fcntl.h>
+
+#include "libnetwork.h"
+#include "../Threads/libthrd.h"
 
 #define MAX_TCP_CONNEXION 10
 #define BUFFER_SIZE 1024
@@ -92,14 +98,22 @@ static int socketVersNomTCP(int s, char *nom)
     return socketVersNomUDP(padresse, nom);
 }
 
-// Fonction permettant de créer le serveur TCP
+/**
+ * fct int initialisationServeur(char *service)
+ * Fonction d'initialisation d'un serveur TCP.
+ *
+ * param service Port sur lequel doit écouter le serveur TCP.
+ *
+ * return Descripteur de fichier de la socket si aucune erreur, -1 sinon.
+ */
+
 int initialisationServeurTCP(char *service)
 {
     struct addrinfo precisions, *resultat, *origine;
     int statut;
     int s;
 
-    /* Construction de la structure adresse */
+    /*Construction de la structure adresse*/
     memset(&precisions, 0, sizeof precisions);
     precisions.ai_family = AF_UNSPEC;
     precisions.ai_socktype = SOCK_STREAM;
@@ -107,50 +121,51 @@ int initialisationServeurTCP(char *service)
     statut = getaddrinfo(NULL, service, &precisions, &origine);
     if (statut < 0)
     {
-        perror("initialisationSocketUDP.getaddrinfo");
+        perror("initialisationServeur.getaddrinfo");
         exit(EXIT_FAILURE);
     }
     struct addrinfo *p;
     for (p = origine, resultat = origine; p != NULL; p = p->ai_next)
-    {
         if (p->ai_family == AF_INET6)
         {
             resultat = p;
             break;
         }
-    }
 
-    /* Creation d'une socket */
+    /*Creation d'une socket*/
     s = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol);
     if (s < 0)
     {
-        perror("initialisationSocketUDP.socket");
+        perror("initialisationServeur.socket");
         exit(EXIT_FAILURE);
     }
 
-    /* Options utiles */
+    /*Options utiles*/
     int vrai = 1;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &vrai, sizeof(vrai)) < 0)
     {
-        perror("initialisationServeurUDPgenerique.setsockopt (REUSEADDR)");
-        exit(-1);
+        perror("initialisationServeur.setsockopt (REUSEADDR)");
+        exit(EXIT_FAILURE);
+    }
+    if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, &vrai, sizeof(vrai)) < 0)
+    {
+        perror("initialisationServeur.setsockopt (NODELAY)");
+        exit(EXIT_FAILURE);
     }
 
-    /* Specification de l'adresse de la socket */
+    /*Specification de l'adresse de la socket*/
     statut = bind(s, resultat->ai_addr, resultat->ai_addrlen);
     if (statut < 0)
-    {
-        perror("initialisationServeurUDP.bind");
-        exit(-1);
-    }
+        return -1;
 
-    /* Liberation de la structure d'informations */
+    /*Liberation de la structure d'informations*/
     freeaddrinfo(origine);
 
-    /* Taille de la queue d'attente */
+    /*Taille de la queue d'attentei*/
     statut = listen(s, MAX_TCP_CONNEXION);
     if (statut < 0)
         return -1;
+
     return s;
 }
 
@@ -164,18 +179,20 @@ int initialisationServeurTCP(char *service)
  * return 0 si aucune erreur, -1 sinon.
  */
 
-int boucleServeurTCP(int ecoute, void (*traitement)(int)) {
+int boucleServeurTCP(int ecoute, void (*traitement)(int))
+{
 
     int dialogue;
 
-    while(1) {
+    while (1)
+    {
         /*Attente d'une connexion*/
-        if((dialogue = accept(ecoute, NULL, NULL)) < 0) return -1;
+        if ((dialogue = accept(ecoute, NULL, NULL)) < 0)
+            return -1;
         /*Passage de la socket de dialogue a la fonction de traitement*/
         traitement(dialogue);
     }
     return 0;
-
 }
 
 // Creation d'un serveur UDP

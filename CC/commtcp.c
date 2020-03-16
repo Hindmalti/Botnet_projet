@@ -9,18 +9,18 @@
 #include <netinet/ip.h>
 #include <libnetwork.h>
 
-
 // function for chat
-void (*traitement)(int s){
+void *traitement(int s)
+{
     char *hello = "Hello from CC";
-    write(s,(void*)hello,strlen(hello));
+    write(s, (void *)hello, strlen(hello));
+    return 0;
 }
-   
 
 int main()
 {
     //Msg à envoyer à tout le monde en TCP
-    char *hello = "Hello from CC";
+    //char *hello = "Hello from CC";
     int s;
     // Structure addresse du serveur (comme en UDP)
     struct sockaddr_in servaddr;
@@ -39,22 +39,19 @@ int main()
     servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     //Pareil pour le port
     servaddr.sin_port = htons(2020);
-
-    if (connect(s, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
-    {
-        printf("connection with the server failed...\n");
-        exit(0);
-    }
-    else
-    {
-        printf("connected to the server..\n");
-    }
-
-    
-
-    boucleServeurTCP(s, traitement(s));
-    // close the socket
+   
+        if (connect(s, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+        {
+            printf("connection with the server failed...\n");
+            exit(0);
+        }
+        else
+        {
+            printf("connected to the server..\n");
+            boucleServeurTCP(s, traitement(s));
+            // close the socket
+            
+        }
     close(s);
-
-
+    return 0;
 }
