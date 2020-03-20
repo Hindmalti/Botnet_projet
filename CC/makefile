@@ -1,6 +1,6 @@
-TARGET=commtcp
+TARGET=http
 FLAGS=-Wall -Wextra -I ../libs
-LIBS= -lnetwork -lthrd -lpthread -L ../libs
+LIBS=-lshm -lnetwork -lthrd -lpthread -L ../libs
 
 all: compile
 
@@ -8,13 +8,13 @@ debug: FLAGS += -DDEBUG
 debug: compile
 
 clean:
-	rm -f *.o *.a
-	rm -f ../bin/$(TARGET)
+	rm -f *.o *.out
+	rm -f ../bin/$(TARGET).out
 
 exec: compile
-	./$(TARGET)
+	./$(TARGET).out
 
 compile:
-	gcc *.c -o $(TARGET) $(LIBS) $(FLAGS)
+	gcc *.c -o $(TARGET).out $(LIBS) $(FLAGS)
 	mkdir -p ../bin
-	cp $(TARGET) ../bin/
+	cp $(TARGET).out ../bin/

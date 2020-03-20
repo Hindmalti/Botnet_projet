@@ -17,7 +17,7 @@ void *traitement(int s)
     return 0;
 }
 
-int main()
+/* int main()
 {
     //Msg à envoyer à tout le monde en TCP
     //char *hello = "Hello from CC";
@@ -55,3 +55,4 @@ int main()
     close(s);
     return 0;
 }
+ */
