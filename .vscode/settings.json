@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "libnetwork.h": "c",
-        "commudp.C": "cpp",
-        "css.C": "cpp"
-    }
-}

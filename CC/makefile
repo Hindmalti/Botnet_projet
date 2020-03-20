@@ -8,7 +8,7 @@ debug: FLAGS += -DDEBUG
 debug: compile
 
 clean:
-	rm -f *.o *
+	rm -f *.o *.a
 	rm -f ../bin/$(TARGET)
 
 exec: compile
