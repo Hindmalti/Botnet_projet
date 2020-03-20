@@ -2,18 +2,29 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <errno.h>
-#include <libthrd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string.h>
+#include <wait.h>
+#include <stdint.h>
+#include <sys/mman.h>
 
-struct ipc_perm
+#include "libshm.h"
+
+void *create_shared_memory(size_t size)
 {
-    uid_t uid;   /* numéro du propriétaire de l'objet */
-    gid_t gid;   /* numéro de groupe de l'objet  */
-    uid_t cuid;  /* numéro du créateur de l'objet */
-    gid_t cgid;  /* numéro de groupe de l'objet */
-    mode_t mode; /* droits de l'objet  */
-    u_long seq;  /* séquence numérique : numéro quelconque */
-    key_t key;   /* clef de ref de l'objet  */
-};
-int shmget (key_t clef, [paramètres ou pas], int option);
+    // notre buffer sera disponible en lecture et écriture
+    int protection = PROT_READ | PROT_WRITE;
+
+    // Le buffer sera partagé (Les autres process pourront y accéder), mais
+    // anonymous (meaning third-party processes cannot obtain an address for it),
+    // so only this process and its children will be able to use it:
+    int visibility = MAP_SHARED | MAP_ANONYMOUS;
+
+    // The remaining parameters to `mmap()` are not important for this use case,
+    // but the manpage for `mmap` explains their purpose.
+    void *s = mmap(NULL, size, protection, visibility, -1, 0);
+    return (s);
+}
