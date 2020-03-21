@@ -1,6 +1,17 @@
-.vscode/*
-*.elf
-*.out
-*.hex
-*.a
+#Object files
+
 *.o
+*.elf
+*.hex
+
+#Libraries
+
+*.a
+
+#Shared objects
+
+*.so
+
+#Executables
+
+*.out
