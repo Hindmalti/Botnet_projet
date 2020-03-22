@@ -10,12 +10,13 @@
 #include <libthrd.h>
 #include <libnetwork.h>
 #include <errno.h>
+#include <time.h>
 
 
 // Fonction du thread et qui continue le chat en TCP avec le CC
 void gestionClient(void *s)
 {
-   
+
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
     FILE *dialogue = fdopen(socket, "a+");
@@ -34,37 +35,43 @@ void nouveauClient(int dialogue)
 
     char *recu = "Salut CC, je suis le serveur du BOT et je te recois";
     write(dialogue, recu, strlen(recu));
-    if (lanceThread(gestionClient,(void *)&dialogue, sizeof(dialogue)) < 0)
+    if (lanceThread(gestionClient, (void *)&dialogue, sizeof(dialogue)) < 0)
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
     }
 }
-void EnvoieUDPBroadcast(){
-    char *hello = "Hello from Bot UDP Broadcast";
+void EnvoieUDPBroadcast(void *arg)
+{
+    //Ici le arg est la chaine de caractère
+    //structure_example *arg2;
+    //arg2 = (*structure_example)arg;
     
     while (1)
     {
-        sendUDPBroadcast((unsigned char *)hello, strlen(hello), 23232);
+        sendUDPBroadcast((unsigned char *)arg, strlen((char *) arg), 4242);
         sleep(5);
-    } 
+    }
 }
 
 int main()
 { // PARTIE UDP
-    int socketUDP;
+    int debut = clock();
+    char string[] = "Coucou from bot, depuis";
     //Msg à envoyer à tout le monde en UDP
-    if (lanceThread(EnvoieUDPBroadcast,(void *)&socketUDP, sizeof(socketUDP)) < 0)
+    if (lanceThread(EnvoieUDPBroadcast, (void *)string, strlen(string)) < 0)
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
     }
+
+    
     // PARTIE SERVEUR TCP
     char port_s[6] = "2020";
     int s;
-
-    s = initialisationServeurTCP(port_s);
     /* Initialisation du serveur */
+    s = initialisationServeurTCP(port_s);
+
     if (s < 0)
     {
         fprintf(stderr, "Initialisation du serveur impossible\n");
