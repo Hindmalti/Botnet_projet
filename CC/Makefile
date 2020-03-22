@@ -1,4 +1,4 @@
-TARGET=http
+TARGET=commtcp
 FLAGS=-Wall -Wextra -I ../libs
 LIBS=-lshm -lnetwork -lthrd -lpthread -L ../libs
 
