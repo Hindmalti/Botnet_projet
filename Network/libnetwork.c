@@ -19,9 +19,19 @@
 #include "../Threads/libthrd.h"
 
 #define MAX_TCP_CONNEXION 10
-#define BUFFER_SIZE 1024
+#define MAX_UDP_MESSAGE 1024
+
 
 //Fonction permettant d'envoyer en broadcast un message
+/**
+ * fct void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
+ * Fonction d'envoi de msg en UDP en Broadcast.
+ *
+ * param 
+ *
+ * return 
+ */
+
 void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
 {
     int broadcast_enable = 1;
@@ -55,47 +65,6 @@ void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
         exit(-1);
     }
     close(s);
-}
-
-// Retourne l'adresse ip d'une connexion active
-static int socketVersNomUDP(struct sockaddr *padresse, char *nom)
-{
-    void *ip;
-    int taille_nom;
-    if (padresse->sa_family == AF_INET)
-    {
-        struct sockaddr_in *ipv4 = (struct sockaddr_in *)padresse;
-        ip = (void *)&ipv4->sin_addr;
-        taille_nom = INET_ADDRSTRLEN;
-    }
-    if (padresse->sa_family == AF_INET6)
-    {
-        struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)padresse;
-        ip = (void *)&ipv6->sin6_addr;
-        taille_nom = INET6_ADDRSTRLEN;
-    }
-    char nom_deco[20];
-    inet_ntop(padresse->sa_family, ip, nom_deco, taille_nom);
-    sprintf(nom, "%s", nom_deco + 7);
-    return 0;
-}
-static int socketVersNomTCP(int s, char *nom)
-{
-    struct sockaddr_storage adresse;
-    struct sockaddr *padresse = (struct sockaddr *)&adresse;
-    socklen_t taille = sizeof adresse;
-    int statut;
-
-    /* Recupere l'adresse de la socket distante */
-    statut = getpeername(s, padresse, &taille);
-    if (statut < 0)
-    {
-        perror("socketVersNom.getpeername");
-        return -1;
-    }
-
-    /* Recupere le nom de la machine */
-    return socketVersNomUDP(padresse, nom);
 }
 
 /**
@@ -252,27 +221,27 @@ int initialisationServeurUDP(char *service)
     return s;
 }
 
-// Reception des messages UDP et execute la fonction passee en argument
-int boucleServeurUDP(int s, void (*traitement)(unsigned char *, int, char *))
+/**
+ * fct int boucleServeurUDP(int s, int (*traitement)(unsigned char *, int))
+ * Fonction d'initialisation d'un serveur UDP ( qui tournera sur le CC).
+ *
+ * param .
+ *
+ * return .
+ */
+
+int boucleServeurUDP(int s, int (*traitement)(unsigned char *, int))
 {
     while (1)
     {
         struct sockaddr_storage adresse;
-        struct sockaddr *padresse = (struct sockaddr *)&adresse;
         socklen_t taille = sizeof(adresse);
-        unsigned char message[BUFFER_SIZE];
-
-        int nboctets = recvfrom(s, message, BUFFER_SIZE, 0, (struct sockaddr *)padresse, &taille);
+        unsigned char message[MAX_UDP_MESSAGE];
+        int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE, 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
-
-        /* Recupere le nom de la machine */
-        char char_ip[20];
-        int status = socketVersNomUDP(padresse, char_ip);
-        if (status < 0)
-            perror("socketVersNom");
-
-        traitement(message, nboctets, char_ip);
+        if (traitement(message, nboctets) < 0)
+            break;
     }
     return 0;
 }
