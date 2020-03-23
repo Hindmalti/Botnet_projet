@@ -40,7 +40,7 @@ int main()
         fprintf(stderr, "Initialisation du serveur UDP impossible\n");
         exit(-1);
     }
-    //TO DO : lancement dans un thread
+  
     /* Lancement de la boucle d'ecoute */
      if (lanceThread(boucleServeurUDP(socket_udp, traitement_udp)) < 0)
     {
