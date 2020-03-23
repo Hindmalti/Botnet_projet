@@ -42,12 +42,13 @@ int main()
     }
     //TO DO : lancement dans un thread
     /* Lancement de la boucle d'ecoute */
-    //if (boucleServeurUDP(socket_udp, traitement_udp  < 0) Faux car nom_a_la
-    if (boucleServeurUDP(socket_udp, traitement_udp) < 0)
+     if (lanceThread(boucleServeurUDP(socket_udp, traitement_udp)) < 0)
     {
-        fprintf(stderr, "Connexion avec le client UDP impossible\n");
+        perror("boucleServeurUDP.lanceThread");
         exit(-1);
     }
+    
+   
     close(socket_udp);
 
     //PARTIE Client TCP (envoie)
