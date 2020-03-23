@@ -21,7 +21,6 @@
 #define MAX_TCP_CONNEXION 10
 #define MAX_UDP_MESSAGE 1024
 
-
 //Fonction permettant d'envoyer en broadcast un message
 /**
  * fct void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
@@ -224,13 +223,11 @@ int initialisationServeurUDP(char *service)
 /**
  * fct int boucleServeurUDP(int s, int (*traitement)(unsigned char *, int))
  * Fonction d'initialisation d'un serveur UDP ( qui tournera sur le CC).
- *
- * param .
- *
- * return .
+ * param socket d'écoute udp 
+ * param traitement_udp Fonction qui va traiter les requêtes UDP entrantes.
  */
 
-int boucleServeurUDP(int s, int (*traitement)(unsigned char *, int))
+int boucleServeurUDP(int s, int (*traitement_udp)(unsigned char *, int))
 {
     while (1)
     {
@@ -240,8 +237,11 @@ int boucleServeurUDP(int s, int (*traitement)(unsigned char *, int))
         int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE, 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
-        if (traitement(message, nboctets) < 0)
-            break;
+        if (traitement_udp(message, nboctets) < 0)
+        {
+            perror("serveurMessages.traitement_udp");
+            exit(-1);
+        }
     }
     return 0;
 }
