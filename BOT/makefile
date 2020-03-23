@@ -1,4 +1,4 @@
-TARGET=commudp
+TARGET=commudp.out
 FLAGS=-Wall -Wextra -I ../libs
 LIBS= -lnetwork -lthrd -lpthread -L ../libs
 
@@ -8,7 +8,7 @@ debug: FLAGS += -DDEBUG -g
 debug: compile
 
 clean:
-	rm -f *.o *
+	rm -f *.o *.out
 	rm -f ../bin/$(TARGET)
 
 exec: compile

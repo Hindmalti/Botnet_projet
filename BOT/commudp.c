@@ -32,7 +32,7 @@ void gestionClient(void *s)
 void nouveauClient(int dialogue)
 {
 
-    char *recu = "Salut CC, je suis le serveur du BOT et je te recois";
+    char *recu = "Salut CC, je suis le serveur du BOT et je reçois ton msg";
     write(dialogue, recu, strlen(recu));
     if (lanceThread(gestionClient,(void *)&dialogue, sizeof(dialogue)) < 0)
     {
@@ -40,38 +40,40 @@ void nouveauClient(int dialogue)
         exit(-1);
     }
 }
-void EnvoieUDPBroadcast(){
-    char *hello = "Hello from Bot UDP Broadcast";
+void EnvoieUDPBroadcast(void *message){
+    //char *hello = "Hello from Bot UDP Broadcast";
     
     while (1)
     {
-        sendUDPBroadcast((unsigned char *)hello, strlen(hello), 23232);
+        sendUDPBroadcast((unsigned char *)message, strlen((char *)message), 2020);
         sleep(5);
     } 
 }
 
 int main()
 { // PARTIE UDP
-    int socketUDP;
+    //int socketUDP;
+    char message[] = "Salut je suis un BOT";
     //Msg à envoyer à tout le monde en UDP
-    if (lanceThread(EnvoieUDPBroadcast,(void *)&socketUDP, sizeof(socketUDP)) < 0)
+    //if (lanceThread(EnvoieUDPBroadcast,(void *)&socketUDP, sizeof(socketUDP)) < 0)
+    if (lanceThread(EnvoieUDPBroadcast,(void *)message, sizeof(message)) < 0)
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
     }
-    // PARTIE SERVEUR TCP
+     //PARTIE SERVEUR TCP
     char port_s[6] = "2020";
     int s;
 
     s = initialisationServeurTCP(port_s);
-    /* Initialisation du serveur */
+    // Initialisation du serveur 
     if (s < 0)
     {
         fprintf(stderr, "Initialisation du serveur impossible\n");
         exit(-1);
     }
 
-    /* Lancement de la boucle d'ecoute */
+    // Lancement de la boucle d'ecoute 
     if (boucleServeurTCP(s, nouveauClient) < 0)
     {
         fprintf(stderr, "Connexion avec le client impossible\n");

@@ -17,17 +17,42 @@ void *traitement(int s)
     return 0;
 }
 
-int main()
-{
+void affiche(unsigned char * message, int nboctets, char *ip){
+     printf("ok");
+     printf("message: %s : nboctets : %d : ip : %s", message, nboctets, ip);
+
+}
+
+int main(){
+// PARTIE SERVEUR UDP
+   /* char port_s[6] = "2020";
+    int s_udp;
+
+    s_udp = initialisationServeurUDP(port_s);
+    // Initialisation du serveur
+    if (s_udp < 0)
+    {
+        fprintf(stderr, "Initialisation du serveur impossible\n");
+        exit(-1);
+    }
+    printf("ok");
+    // Lancement de la boucle d'ecoute udp 
+    if (boucleServeurUDP(s_udp, affiche) < 0)
+    {
+        fprintf(stderr, "Connexion avec le client impossible\n");
+        exit(-1);
+    }*/
+
+  
     //Msg à envoyer à tout le monde en TCP
-    //char *hello = "Hello from CC";
-    int s;
+    char *message = "Hello from CC";
+    int s_tcp;
     // Structure addresse du serveur (comme en UDP)
     struct sockaddr_in servaddr;
 
-    s = socket(AF_INET, SOCK_STREAM, 0);
+    s_tcp = socket(AF_INET, SOCK_STREAM, 0);
     //Création de la socket : s = file descriptor de la socket, AF_INET (socket internet), SOCK_DGRAM (datagramme, UDP, sans connexion)
-    if (s < 0)
+    if (s_tcp < 0)
     {
         //Test de la valeur de retour de la socket
         perror("sendUDPBroadcast.socket");
@@ -40,7 +65,7 @@ int main()
     //Pareil pour le port
     servaddr.sin_port = htons(2020);
    
-        if (connect(s, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+        if (connect(s_tcp, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
         {
             printf("connection with the server failed...\n");
             exit(0);
@@ -48,10 +73,10 @@ int main()
         else
         {
             printf("connected to the server..\n");
-            boucleServeurTCP(s, traitement(s));
+            sendTCP(s_tcp, message, strlen(message));
             // close the socket
             
         }
-    close(s);
+    close(s_tcp);
     return 0;
 }
