@@ -17,15 +17,15 @@ void *traitement(int s)
     return 0;
 }
 
-void affiche(unsigned char * message, int nboctets, char *ip){
-     printf("ok");
-     printf("message: %s : nboctets : %d : ip : %s", message, nboctets, ip);
-
+int affiche(unsigned char *message, int nboctets){
+     
+     printf("nboctets : %d", nboctets);
+     return 0;
 }
 
 int main(){
-// PARTIE SERVEUR UDP
-   /* char port_s[6] = "2020";
+//PARTIE SERVEUR UDP
+    char port_s[6] = "2020";
     int s_udp;
 
     s_udp = initialisationServeurUDP(port_s);
@@ -41,7 +41,7 @@ int main(){
     {
         fprintf(stderr, "Connexion avec le client impossible\n");
         exit(-1);
-    }*/
+    }
 
   
     //Msg à envoyer à tout le monde en TCP

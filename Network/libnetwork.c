@@ -20,6 +20,8 @@
 
 #define MAX_TCP_CONNEXION 10
 #define BUFFER_SIZE 1024
+#define MAX_TAMPON 50
+#define MAX_UDP_MESSAGE 100
 
 //Fonction permettant d'envoyer en broadcast un message
 void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
@@ -96,6 +98,23 @@ static int socketVersNomTCP(int s, char *nom)
 
     /* Recupere le nom de la machine */
     return socketVersNomUDP(padresse, nom);
+}
+
+void socketVersClient(int s,char **hote,char **service){
+struct sockaddr_storage adresse;
+socklen_t taille=sizeof adresse;
+int statut;
+
+/* Recupere l'adresse de la socket distante */
+statut=getpeername(s,(struct sockaddr *)&adresse,&taille);
+if(statut<0){ perror("socketVersNom.getpeername"); exit(EXIT_FAILURE); }
+
+/* Recupere le nom de la machine */
+*hote=malloc(MAX_TAMPON);
+if(*hote==NULL){ perror("socketVersClient.malloc"); exit(EXIT_FAILURE); }
+*service=malloc(MAX_TAMPON);
+if(*service==NULL){ perror("socketVersClient.malloc"); exit(EXIT_FAILURE); }
+getnameinfo((struct sockaddr *)&adresse,sizeof adresse,*hote,MAX_TAMPON,*service,MAX_TAMPON,0);
 }
 
 /**
@@ -253,28 +272,17 @@ int initialisationServeurUDP(char *service)
 }
 
 // Reception des messages UDP et execute la fonction passee en argument
-int boucleServeurUDP(int s, void (*traitement)(unsigned char *, int, char *))
-{
-    while (1)
-    {
-        struct sockaddr_storage adresse;
-        struct sockaddr *padresse = (struct sockaddr *)&adresse;
-        socklen_t taille = sizeof(adresse);
-        unsigned char message[BUFFER_SIZE];
-
-        int nboctets = recvfrom(s, message, BUFFER_SIZE, 0, (struct sockaddr *)padresse, &taille);
-        if (nboctets < 0)
-            return -1;
-
-        /* Recupere le nom de la machine */
-        char char_ip[20];
-        int status = socketVersNomUDP(padresse, char_ip);
-        if (status < 0)
-            perror("socketVersNom");
-
-        traitement(message, nboctets, char_ip);
-    }
-    return 0;
+int boucleServeurUDP(int s,int (*traitement)(unsigned char *,int)){
+while(1){
+  printf("boucle");
+  struct sockaddr_storage adresse;
+  socklen_t taille=sizeof(adresse);
+  unsigned char message[MAX_UDP_MESSAGE];
+  int nboctets=recvfrom(s,message,MAX_UDP_MESSAGE,0,(struct sockaddr *)&adresse,&taille);
+  if(nboctets<0) return -1;
+  if(traitement(message,nboctets)<0) break;
+  }
+return 0;
 }
 
 // Initialise un client TCP, et renvoie la socket de connexion
