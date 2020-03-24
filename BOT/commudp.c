@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <time.h>
 
+#include "utils.h"
 
 // Fonction du thread et qui continue le chat en TCP avec le CC
 void gestionClient(void *s)
@@ -55,8 +56,14 @@ void EnvoieUDPBroadcast(void *arg)
 }
 
 int main()
-{ // PARTIE UDP
-    int debut = clock();
+{ 
+    clock_t debut = clock(); //prise de temps au moment du démarrage du process
+    srand(time(NULL));  //Initialisation nécessaire à faire une seule fois pour la fct rand
+
+    info_bot_t info_bot;
+    info_bot = remplissageStructure(info_bot, debut);
+    impressionStructure(info_bot);
+    // PARTIE UDP
     char string[] = "Coucou from bot, depuis";
     //Msg à envoyer à tout le monde en UDP
     if (lanceThread(EnvoieUDPBroadcast, (void *)string, strlen(string)) < 0)
