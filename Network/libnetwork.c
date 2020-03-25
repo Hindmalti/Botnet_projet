@@ -20,7 +20,7 @@
 
 #define MAX_TCP_CONNEXION 10
 #define BUFFER_SIZE 1024
-#define MAX_TAMPON 50
+#define MAX_TAMPON 22
 #define MAX_UDP_MESSAGE 100
 
 //Fonction permettant d'envoyer en broadcast un message
@@ -272,15 +272,42 @@ int initialisationServeurUDP(char *service)
 }
 
 // Reception des messages UDP et execute la fonction passee en argument
-int boucleServeurUDP(int s,int (*traitement)(unsigned char *,int)){
+int boucleServeurUDP(int s,int (*traitement)(unsigned char *, char *)){
 while(1){
-  printf("boucle");
+  char *hote;
+  char *service;
+  printf("\nBoucle serveur\n");
   struct sockaddr_storage adresse;
   socklen_t taille=sizeof(adresse);
   unsigned char message[MAX_UDP_MESSAGE];
   int nboctets=recvfrom(s,message,MAX_UDP_MESSAGE,0,(struct sockaddr *)&adresse,&taille);
-  if(nboctets<0) return -1;
-  if(traitement(message,nboctets)<0) break;
+  if(nboctets<0){ 
+      return -1;
+  }
+
+  /*switch (adresse.ss_family){
+  case AF_INET6:*/
+ 
+    hote = malloc(MAX_TAMPON);
+    if(hote==NULL){
+        perror("socketVersClient.malloc"); exit(EXIT_FAILURE);
+        }
+    service = malloc(MAX_TAMPON);
+    if(service==NULL){
+        perror("socketVersClient.malloc"); exit(EXIT_FAILURE);
+        }
+    if (getnameinfo((struct sockaddr *)&adresse, sizeof(adresse), hote, MAX_TAMPON, service, MAX_TAMPON, NI_NUMERICHOST|NI_NUMERICSERV)==0){
+        printf("getnameinfo OK\n");
+        //printf("adresse %s service %s\n",hote, service);
+    }
+
+    //printf("error getnameinfo");
+    /*break;
+    default:
+    printf("oups\n");
+    break;
+  }*/
+  if(traitement(message,hote)<0) break; //on renvoie juste le message et l'adresse
   }
 return 0;
 }
