@@ -1,6 +1,6 @@
-TARGET=commtcp.out
+TARGET=commtcp
 FLAGS=-Wall -Wextra -I ../libs
-LIBS= -lnetwork -lthrd -lpthread -L ../libs
+LIBS= -lnetwork -lthrd -lpthread -L ../libs #-lshm
 
 all: compile
 
@@ -9,12 +9,12 @@ debug: compile
 
 clean:
 	rm -f *.o *.out
-	rm -f ../bin/$(TARGET)
+	rm -f ../bin/$(TARGET).out
 
 exec: compile
-	./$(TARGET)
+	./$(TARGET).out
 
 compile:
-	gcc *.c -o $(TARGET) $(LIBS) $(FLAGS)
+	gcc *.c -o $(TARGET).out $(LIBS) $(FLAGS)
 	mkdir -p ../bin
-	cp $(TARGET) ../bin/
+	cp $(TARGET).out ../bin/

@@ -45,7 +45,7 @@ void EnvoieUDPBroadcast(void *message){
     
     while (1)
     {
-        sendUDPBroadcast((unsigned char *)message, strlen((char *)message), 2020);
+        sendUDPBroadcast((unsigned char *)message, strlen((char *)message), 4242);
         sleep(5);
     } 
 }
@@ -56,7 +56,7 @@ int main()
     char message[] = "Salut je suis un BOT";
     //Msg à envoyer à tout le monde en UDP
     //if (lanceThread(EnvoieUDPBroadcast,(void *)&socketUDP, sizeof(socketUDP)) < 0)
-    if (lanceThread(EnvoieUDPBroadcast,(void *)message, sizeof(message)) < 0)
+    if (lanceThread(EnvoieUDPBroadcast,(void *)message, strlen(message)) < 0)
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
