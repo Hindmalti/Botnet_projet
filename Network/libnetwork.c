@@ -17,6 +17,7 @@
 
 #include "libnetwork.h"
 #include "../Threads/libthrd.h"
+#include "../BOT/utils.h"
 
 #define MAX_TCP_CONNEXION 10
 #define MAX_UDP_MESSAGE 1024
@@ -26,8 +27,9 @@
  * fct void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
  * Fonction d'envoi de msg en UDP en Broadcast.
  *
- * param 
- *
+ * param message à envoyer en broadcast
+ * param taille_message taille du message à envoyer
+ * param port : port depuis lequel il envoie (port client)
  * return 
  */
 
@@ -234,9 +236,16 @@ int boucleServeurUDP(int s, int (*traitement_udp)(unsigned char *, int))
         struct sockaddr_storage adresse;
         socklen_t taille = sizeof(adresse);
         unsigned char message[MAX_UDP_MESSAGE];
+
+        char addresse_string[20];
+
         int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE, 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
+
+        inet_ntop(AF_INET, &(adresse.ss_family), addresse_string, 20);
+        printf("%s\n", addresse_string);
+        //strcpy(get_ip_bot, addresse_string);
         if (traitement_udp(message, nboctets) < 0)
         {
             perror("serveurMessages.traitement_udp");

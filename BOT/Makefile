@@ -1,4 +1,4 @@
-TARGET=commudp
+TARGET=bot
 FLAGS=-Wall -Wextra -I ../libs
 LIBS= -lnetwork -lthrd -lpthread -L ../libs
 

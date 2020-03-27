@@ -1,10 +1,10 @@
-TARGET=commtcp
+TARGET=cc
 FLAGS=-Wall -Wextra -I ../libs
 LIBS=-lshm -lnetwork -lthrd -lpthread -L ../libs
 
 all: compile
 
-debug: FLAGS += -DDEBUG
+debug: FLAGS += -g -DDEBUG
 debug: compile
 
 clean:
@@ -12,9 +12,9 @@ clean:
 	rm -f ../bin/$(TARGET).out
 
 exec: compile
-	./$(TARGET).out
+	./$(TARGET)
 
 compile:
-	gcc *.c -o $(TARGET).out $(LIBS) $(FLAGS)
+	gcc *.c -o $(TARGET) $(LIBS) $(FLAGS)
 	mkdir -p ../bin
-	cp $(TARGET).out ../bin/
+	cp $(TARGET) ../bin/
