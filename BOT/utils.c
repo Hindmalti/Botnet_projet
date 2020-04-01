@@ -42,10 +42,6 @@ char *timeLife(clock_t debut, char *temps)
     temps[SIZE_TIME - 1] = '\0';
     return temps;
 }
-/* 
-char *get_ip_bot(){
-    return 
-} */
 
 /**
  *
@@ -59,22 +55,21 @@ char *get_ip_bot(){
  */
 
 
-info_bot_t remplissageStructure(info_bot_t structure, clock_t debut)
+int remplissageStructure(info_bot_t *structure, clock_t debut)
 {
     //initialisation de la structure
     char id[SIZE_ID];
     char timeSpent[SIZE_TIME];
     char etat = ETAT_ACTIF;
     //remplissage
-    strcpy(structure.ID, create_ID(id));
+    strcpy(structure->ID, create_ID(id));
     sleep(5);
-    strcpy(structure.life_time, timeLife(debut, timeSpent));
-    structure.etat = etat;
-    // L'IP et le port sont temporerement fixe en attendant des jours meilleurs ><
-    structure.ip = IP_UDP_CLIENT ; 
-    structure.port = PORT_UDP_CLIENT ;
-    return structure;
+    strcpy(structure->life_time, timeLife(debut, timeSpent));
+    structure->etat = etat;
+    return 0;
 }
+
+//On ne renvoie JAMAIS une structure, on modifie celle qu'on a passée en paramètre via un pointeur
 
 /**
  * void impressionStructure(info_bot_t info_bot)
@@ -86,6 +81,4 @@ void impressionStructure(info_bot_t info_bot)
     printf("L'ID dans la structure est : %s\n", info_bot.ID);
     printf("Le temps de vie dans la structure est : %s milliseconds\n", info_bot.life_time);
     printf("L'état dans la structure est : %c\n", info_bot.etat);
-    printf("L'IP dans la structure est : %s\n", info_bot.ip);
-    printf("Le port dans la structure est : %s\n", info_bot.port);
 }
