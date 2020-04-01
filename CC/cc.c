@@ -17,10 +17,14 @@
 #define PORT_TCP_BOT 2020
 #define TAILLE 20
 
-int traitement_udp(unsigned char *message, int taille)
+int traitement_udp(info_bot_t structure, int taille)
 {
     (void)taille;
-    printf("le msg que j'ai reçu du bot: %s\n", message);
+    //impressionStructure(structure);
+    printf("***************La structure ************ \n");
+    printf("L'ID dans la structure est : %s\n", structure.ID);
+    printf("Le temps de vie dans la structure est : %s milliseconds\n", structure.life_time);
+    printf("L'état dans la structure est : %c\n", structure.etat);
     return 0;
 }
 
@@ -94,12 +98,10 @@ void init_socket()
 int main()
 {
 
-    //PARTIE Client TCP (envoie) Without thread
+    /* //PARTIE Client TCP (envoie) Without thread
     printf("*************partie TCP*******************\n");
-
-    //info_bot_t info_bot;
     //envoyer le msg dans un thread au bot
-    init_socket();
+    init_socket(); */
 
     // PARTIE SERVEUR UDP (écoute)
     char *port_udp = UDP_PORT_ECOUTE;
@@ -126,8 +128,3 @@ int main()
 
     return 0;
 }
-/* 
-1 - il envoie un msg en TCP au bot (client tcp)
-2 - boucle d'écoute UDP qui récupère le message envoyé du bot et le printf , 
-il récupèrera également l'ip du bot pour remplir une structure
- */

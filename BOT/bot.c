@@ -18,19 +18,10 @@
 #define PORT_UDP_SERVEUR 4242
 #define PORT_TCP_CLIENT 2020
 #define PORT_TCP_SERVEUR "2020"
+#define TAILLE_STRUCTURE 32
 
-/* void ProcessDialog(int s)
-{
-    char *MsgRecv;
-    char *MsgSend = "Salut CC, je suis le serveur du BOT et je te recois";
-    //recv(s, (char *)&MsgRecv, strlen(MsgRecv), 0);
-    printf("%s", MsgRecv);
-    send(s, (char *)&MsgSend, strlen(MsgSend), 0);
-   
-} */
-/* 
+extern clock_t debut;
 
- */
 void gestionClient(void *s)
 {
     printf("[gestionClient]Start\n");
@@ -64,41 +55,38 @@ void nouveauClient(int dialogue)
     }
 }
 
-void EnvoieUDPBroadcast(void *arg)
-{
-    //Ici le arg est la chaine de caractère
-    //structure_example *arg2;
-    //arg2 = (*structure_example)arg;
+// wrapper EnvoieUDPBroadcast
 
+void EnvoieBroadcast(void *structure)
+{
     while (1)
-    {
-        sendUDPBroadcast((unsigned char *)arg, strlen((char *)arg), PORT_UDP_CLIENT);
+    {  
+        sendUDPBroadcast(*((info_bot_t *)structure), sizeof(info_bot_t), PORT_UDP_CLIENT);
         sleep(5);
     }
 }
 
 int main()
 {
- /*    clock_t debut = clock(); //prise de temps au moment du démarrage stricte du process
-    srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fct rand
+    clock_t debut = clock(); //prise de temps au moment du démarrage stricte du process
+    srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fonction rand
 
     info_bot_t info_bot;                              // création d'une structure
-    info_bot = remplissageStructure(info_bot, debut); //remplissage avec l'ID et le temps de vie et état
-    impressionStructure(info_bot); */
-
-  /*   // PARTIE UDP
-    char string[] = "Coucou from BOT";
+    remplissageStructure(&info_bot, debut); //remplissage avec l'ID et le temps de vie et état
+    impressionStructure(info_bot);
+    // PARTIE UDP
     //Msg à envoyer à tout le monde en UDP
-    if (lanceThread(EnvoieUDPBroadcast, (void *)string, strlen(string)) < 0)
+    if (lanceThread(EnvoieBroadcast, (void *)&info_bot, sizeof(info_bot_t)) < 0)
     {
-        perror("nouveauClient.lanceThread");
+        perror("EnvoieBroadcast.lanceThread");
         exit(-1);
-    } */
+    }
+    while(1){}
 
-    // PARTIE SERVEUR TCP
+     /* // PARTIE SERVEUR TCP
     char port_s[6] = PORT_TCP_SERVEUR;
     int socket_tcp;
-    /* Initialisation du serveur */
+    // Initialisation du serveur 
     socket_tcp = initialisationServeurTCP(port_s);
     if (socket_tcp < 0)
     {
@@ -109,13 +97,13 @@ int main()
     printf("J'ai bien initialisé la socket du serveur TCP\n");
 
     //TO DO : à mettre dans un thread
-    /* Lancement de la boucle d'ecoute */
+    //Lancement de la boucle d'ecoute 
     if (boucleServeurTCP(socket_tcp, nouveauClient) < 0)
     {
         fprintf(stderr, "Connexion avec le client impossible\n");
         exit(-1);
-    }
-
+    } 
+ */
     return 0;
 }
 

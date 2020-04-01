@@ -14,6 +14,7 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "libnetwork.h"
 #include "../Threads/libthrd.h"
@@ -21,6 +22,9 @@
 
 #define MAX_TCP_CONNEXION 10
 #define MAX_UDP_MESSAGE 1024
+#define TAILLE_STRUCTURE 32
+
+
 
 //Fonction permettant d'envoyer en broadcast un message
 /**
@@ -33,7 +37,7 @@
  * return 
  */
 
-void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
+void sendUDPBroadcast(info_bot_t info_bot, int taille_structure, int port)
 {
     int broadcast_enable = 1;
     //Option broadcast ON
@@ -57,9 +61,12 @@ void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
     broadcast_address.sin_family = AF_INET;
     broadcast_address.sin_port = htons(port);
     broadcast_address.sin_addr.s_addr = INADDR_BROADCAST; //255.255.255.255
+    //remplissageStructure(info_bot,debut);
+    taille_structure = TAILLE_STRUCTURE;
 
-    //Envoie du message depuis les bots
-    if (sendto(s, message, taille_message, 0, (struct sockaddr *)&broadcast_address,
+    //Envoie de la structure depuis les bots
+
+    if (sendto(s, &info_bot, taille_structure, 0, (struct sockaddr *)&broadcast_address,
                sizeof(broadcast_address)) < 0)
     {
         perror("sendUDPBroadcast.sendto");
@@ -223,30 +230,26 @@ int initialisationServeurUDP(char *service)
 }
 
 /**
- * fct int boucleServeurUDP(int s, int (*traitement)(unsigned char *, int))
+ * fct int boucleServeurUDP(int s, int (*traitement)(info_bot_t, int))
  * Fonction d'initialisation d'un serveur UDP ( qui tournera sur le CC).
  * param socket d'écoute udp 
  * param traitement_udp Fonction qui va traiter les requêtes UDP entrantes.
  */
-
-int boucleServeurUDP(int s, int (*traitement_udp)(unsigned char *, int))
+int boucleServeurUDP(int s, int (*traitement_udp)(info_bot_t, int))
 {
     while (1)
     {
         struct sockaddr_storage adresse;
+        info_bot_t structure;
         socklen_t taille = sizeof(adresse);
-        unsigned char message[MAX_UDP_MESSAGE];
-
         char addresse_string[20];
 
-        int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE, 0, (struct sockaddr *)&adresse, &taille);
+        int nboctets = recvfrom(s,&structure, sizeof(info_bot_t), 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
-
+        //
         inet_ntop(AF_INET, &(adresse.ss_family), addresse_string, 20);
-        printf("%s\n", addresse_string);
-        //strcpy(get_ip_bot, addresse_string);
-        if (traitement_udp(message, nboctets) < 0)
+        if (traitement_udp(structure, nboctets) < 0)
         {
             perror("serveurMessages.traitement_udp");
             exit(-1);
