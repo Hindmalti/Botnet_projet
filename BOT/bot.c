@@ -22,40 +22,51 @@
 
 extern clock_t debut;
 
-void gestionClient(void *s)
+/**
+ * void gestionClientTCP(void *s)
+ * Fonction qui reçoi le msg envoyée par le CC (qui deviendra un ordre plus tard)
+ * elle le reçoit et le printf
+ * param pointeur vers la socket TCP
+ */
+
+void gestionClientTCP(void *s)
 {
-    printf("[gestionClient]Start\n");
+    printf("[gestionClientTCP]Start\n");
     char msg_recu[80];
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
     FILE *dialogue = fdopen(socket, "a+");
     //ProcessDialog(socket);
     receiveTCP(socket, msg_recu, sizeof(msg_recu));
-    printf("[gestionClient]Le msg que j'ai lu de mon client TCP est : %s\n", msg_recu);
+    printf("[gestionClientTCP]Le msg que j'ai lu de mon client TCP est : %s\n", msg_recu);
     if (dialogue == NULL)
     {
-        perror("gestionClient.fdopen");
+        perror("gestionClientTCP.fdopen");
         exit(EXIT_FAILURE);
     }
     fclose(dialogue);
     return;
 }
 
-/*
-Fonction de traitement qui traite la socket
-
+/**
+ * void nouveauClient(int dialogue)
+ * Fonction wrapper qui lance un thread avec la fct de traitement TCP
+ * param socket de dialogue 
 */
 void nouveauClient(int dialogue)
 {
     printf("[nouveauClient]Start\n");
-    if (lanceThread(gestionClient, (void *)&dialogue, sizeof(dialogue)) < 0)
+    if (lanceThread(gestionClientTCP, (void *)&dialogue, sizeof(dialogue)) < 0)
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
     }
 }
-
-// wrapper EnvoieUDPBroadcast
+/**
+ * void EnvoieBroadcast(void *structure)
+ * Fonction wrapper pour sendUDPBroadcast
+ * param pointeur vers la structure à envoyer en UDP
+*/
 
 void EnvoieBroadcast(void *structure)
 {
@@ -75,7 +86,7 @@ int main()
     remplissageStructure(&info_bot, debut); //remplissage avec l'ID et le temps de vie et état
     impressionStructure(info_bot);
     // PARTIE UDP
-    //Msg à envoyer à tout le monde en UDP
+    //Envoie de la structure crée en broadcast UDP
     if (lanceThread(EnvoieBroadcast, (void *)&info_bot, sizeof(info_bot_t)) < 0)
     {
         perror("EnvoieBroadcast.lanceThread");
@@ -106,15 +117,3 @@ int main()
  */
     return 0;
 }
-
-/*
-Problème : "J'ai lancé la boucle serveur TCP" ne s'affiche pas => Car boucleServeurTCP s'execute dans le thread principal du main. Il faudra prévoir
-par la suite de mettre en place cette boucle serveur dans un tread à lui tout seul
-
-Programme BOT : 
-
-1/ Lancer une boucleServeur TCP afin de gérer les nouvelles connexion des clients => 1 thread qui lancera ensuite 1 thread par client (prévoir probablement un wrapper)
-2/ Lancer une boucle UDP afin d'envoyer les status en broadcast => 1 thread à part (prévoir probablement un wrapper)
-3/ Traiter les commandes recues => 1 thread (prévoir un wrapper)
-
-*/

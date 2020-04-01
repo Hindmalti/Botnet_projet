@@ -17,23 +17,45 @@
 #define PORT_TCP_BOT 2020
 #define TAILLE 20
 
-int traitement_udp(info_bot_t structure, int taille)
+/**
+ * int traitementUDP(info_bot_t structure, int taille)
+ * Fonction de traitement de la réception UDP (pour le moment printf la structure seulement)
+ *
+ * param structure du bot qu'elle a reçu
+ * param taille de la reception (argument utile dans la librairie)
+ */
+int traitementUDP(info_bot_t structure, int taille)
 {
     (void)taille;
     //impressionStructure(structure);
     printf("***************La structure ************ \n");
     printf("L'ID dans la structure est : %s\n", structure.ID);
     printf("Le temps de vie dans la structure est : %s milliseconds\n", structure.life_time);
-    printf("L'état dans la structure est : %c\n", structure.etat);
+    printf("L'état dans la structure est : %c\n", structure.etat); 
     return 0;
 }
 
+/**
+ * void lancementBoucleServeurUDP(void *s)
+ * Fonction wrapper permettant de donner les arguments à  
+ * la fct boucleServeurUDP vu que elle est lancée dans un thread
+ *
+ * param pointeur vers la socket UDP
+ * 
+ */
 void lancementBoucleServeurUDP(void *s)
 {
     int socket_udp = *((int *)s);
-    boucleServeurUDP(socket_udp, traitement_udp);
+    boucleServeurUDP(socket_udp, traitementUDP);
 }
 
+/**
+ * void ecriture_socket(void *s)
+ * Fonction qui écrit un msg dans la socket TCP puis la ferme à la fin 
+ * TO DO : il enverra des ordres et non un msg
+ * param pointeur vers la socket TCP
+ * 
+ */
 void ecriture_socket(void *s)
 {
     char *msg = "Hello from CC";
@@ -44,9 +66,15 @@ void ecriture_socket(void *s)
         exit(-1);
     }
     close(socket_tcp);
-    printf("j'ai fini d'écrire dans la socket TCP\n");
 }
-// Fonction qui lance le thread et envoi le msg
+
+/**
+ * void lancement_thread(int *s)
+ * Fonction wrapper qui lance un thread dans lequel il écrit en TCP au bot
+ * 
+ * param pointeur vers la socket TCP
+ * 
+ */
 void lancement_thread(int *s)
 {
     int socket_tcp = *((int *)s);
@@ -57,6 +85,13 @@ void lancement_thread(int *s)
     }
 }
 
+/**
+ * void init_socket()
+ * Fonction qui crée une socket, lui met des options TCP, la connecte à un serveur TCP, 
+ * une fois la connexion faite elle lance la fct wrapper qui lance un thread avec l'écriture sur la socket
+ * 
+ * TO DO : remplacer IP_BOT et PORT_BOT par des valeurs dynamiques qu'on récupère de la partie UDP
+ */
 void init_socket()
 {
     // Structure addresse du serveur
@@ -95,6 +130,7 @@ void init_socket()
     }
     return;
 }
+
 int main()
 {
 
