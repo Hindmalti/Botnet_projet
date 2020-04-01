@@ -76,7 +76,12 @@ void EnvoieBroadcast(void *structure)
         sleep(5);
     }
 }
-
+/**
+ * void TCP(void *arg)
+ * Fonction wrapper qui initialise une socket tcp et lance boucle Serveur TCP dans un thread
+ * 
+ * 
+ */
 void TCP(void *arg)
 {
     (void)arg;
@@ -85,7 +90,6 @@ void TCP(void *arg)
     int socket_tcp;
     // Initialisation du serveur
     socket_tcp = initialisationServeurTCP(port_s);
-    printf("socket tcp %d\n", socket_tcp);
     if (socket_tcp < 0)
     {
         fprintf(stderr, "Initialisation du serveur impossible\n");
@@ -99,7 +103,11 @@ void TCP(void *arg)
         exit(-1);
     }
 }
-
+/**
+ * void partie_tcp()
+ * Fonction wrapper qui initialise le serveur TCP dans un thread
+ * 
+ */
 void partie_tcp()
 {
     if (lanceThread(TCP, (void *)NULL, 0) < 0)
@@ -108,6 +116,12 @@ void partie_tcp()
         exit(-1);
     }
 }
+/**
+ * void partie_udp(clock_t debut)
+ * Fonction wrapper qui initialise le client UDP dans un thread
+ * param debut 
+ * 
+ */
 void partie_udp(clock_t debut)
 {
 

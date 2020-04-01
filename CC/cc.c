@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -115,7 +114,11 @@ void init_socket(void *arg)
     }
     return;
 }
-
+/**
+ * void partie_udp()
+ * Fonction wrapper qui initialise le serveur UDP dans un thread
+ * 
+ */
 void partie_udp()
 {
     char *port_udp = UDP_PORT_ECOUTE;
@@ -135,6 +138,11 @@ void partie_udp()
     }
     //close(socket_udp);
 }
+/**
+ * void partie_tcp()
+ * Fonction wrapper qui initialise le client TCP dans un thread
+ * 
+ */
 void partie_tcp()
 {
 
