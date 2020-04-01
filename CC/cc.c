@@ -31,7 +31,7 @@ int traitementUDP(info_bot_t structure, int taille)
     printf("***************La structure ************ \n");
     printf("L'ID dans la structure est : %s\n", structure.ID);
     printf("Le temps de vie dans la structure est : %s milliseconds\n", structure.life_time);
-    printf("L'état dans la structure est : %c\n", structure.etat); 
+    printf("L'état dans la structure est : %c\n", structure.etat);
     return 0;
 }
 
@@ -58,31 +58,15 @@ void lancementBoucleServeurUDP(void *s)
  */
 void ecriture_socket(void *s)
 {
-    char *msg = "Hello from CC";
+    char *msg = "Hello from CC\n";
     int socket_tcp = *((int *)s);
     /* Obtient une structure de fichier */
-    if (write(socket_tcp, msg, strlen(msg)) < 0){
+    if (write(socket_tcp, msg, strlen(msg)) < 0)
+    {
         perror("ecriture_socket.write");
         exit(-1);
     }
     close(socket_tcp);
-}
-
-/**
- * void lancement_thread(int *s)
- * Fonction wrapper qui lance un thread dans lequel il écrit en TCP au bot
- * 
- * param pointeur vers la socket TCP
- * 
- */
-void lancement_thread(int *s)
-{
-    int socket_tcp = *((int *)s);
-    if (lanceThread(ecriture_socket, (void *)&socket_tcp, sizeof(socket_tcp)) < 0)
-    {
-        perror("lancement_thread.lanceThread");
-        exit(-1);
-    }
 }
 
 /**
@@ -92,8 +76,9 @@ void lancement_thread(int *s)
  * 
  * TO DO : remplacer IP_BOT et PORT_BOT par des valeurs dynamiques qu'on récupère de la partie UDP
  */
-void init_socket()
+void init_socket(void *arg)
 {
+    (void)arg;
     // Structure addresse du serveur
     struct sockaddr_in servaddr;
     int socket_tcp;
@@ -126,22 +111,15 @@ void init_socket()
     else
     {
         printf("connected to the server..\n");
-        lancement_thread(&socket_tcp);
+        ecriture_socket(&socket_tcp);
     }
     return;
 }
 
-int main()
+void partie_udp()
 {
-
-    /* //PARTIE Client TCP (envoie) Without thread
-    printf("*************partie TCP*******************\n");
-    //envoyer le msg dans un thread au bot
-    init_socket(); */
-
-    // PARTIE SERVEUR UDP (écoute)
     char *port_udp = UDP_PORT_ECOUTE;
-    printf("***************partie udp*************\n");
+    printf("############ Partie UDP ############\n");
     int socket_udp = initialisationServeurUDP(port_udp);
     if (socket_udp < 0)
     {
@@ -149,18 +127,32 @@ int main()
         exit(-1);
     }
 
-    /* Lancement de la boucle d'ecoute UDP dans un thread */
+    //Lancement de la boucle d'ecoute UDP dans un thread
     if (lanceThread(lancementBoucleServeurUDP, (void *)&socket_udp, sizeof(socket_udp)) < 0)
     {
         perror("boucleServeurUDP.lanceThread");
         exit(-1);
     }
-    //while true pour ne pas sortir du main et laisser le temps à la boucleUDP
+    //close(socket_udp);
+}
+void partie_tcp()
+{
+
+    printf("############ Partie TCP ############\n");
+    lanceThread(init_socket, (void *)NULL, 0);
+}
+
+int main()
+{
+    //PARTIE Client TCP dans un THREAD
+    partie_tcp();
+    // PARTIE SERVEUR UDP (écoute) dans un THREAD
+    partie_udp();
+    //while true pour ne pas sortir du main et laisser
+    //le temps aux fct de faire des threads etc
     while (1)
     {
     }
-
-    close(socket_udp);
 
     return 0;
 }

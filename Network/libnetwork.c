@@ -142,7 +142,7 @@ int initialisationServeurTCP(char *service)
     statut = listen(s, MAX_TCP_CONNEXION);
     if (statut < 0)
         return -1;
-
+        
     return s;
 }
 

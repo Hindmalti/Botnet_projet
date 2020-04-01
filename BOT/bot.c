@@ -71,18 +71,48 @@ void nouveauClient(int dialogue)
 void EnvoieBroadcast(void *structure)
 {
     while (1)
-    {  
+    {
         sendUDPBroadcast(*((info_bot_t *)structure), sizeof(info_bot_t), PORT_UDP_CLIENT);
         sleep(5);
     }
 }
 
-int main()
+void TCP(void *arg)
 {
-    clock_t debut = clock(); //prise de temps au moment du démarrage stricte du process
-    srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fonction rand
+    (void)arg;
+    printf("############ Partie TCP ############\n");
+    char port_s[6] = PORT_TCP_SERVEUR;
+    int socket_tcp;
+    // Initialisation du serveur
+    socket_tcp = initialisationServeurTCP(port_s);
+    printf("socket tcp %d\n", socket_tcp);
+    if (socket_tcp < 0)
+    {
+        fprintf(stderr, "Initialisation du serveur impossible\n");
+        exit(-1);
+    }
 
-    info_bot_t info_bot;                              // création d'une structure
+    //Lancement de la boucle d'ecoute
+    if (boucleServeurTCP(socket_tcp, nouveauClient) < 0)
+    {
+        fprintf(stderr, "Connexion avec le client impossible\n");
+        exit(-1);
+    }
+}
+
+void partie_tcp()
+{
+    if (lanceThread(TCP, (void *)NULL, 0) < 0)
+    {
+        perror("boucleServeur.lanceThread");
+        exit(-1);
+    }
+}
+void partie_udp(clock_t debut)
+{
+
+    printf("############ Partie UDP ############\n");
+    info_bot_t info_bot;                    // création d'une structure
     remplissageStructure(&info_bot, debut); //remplissage avec l'ID et le temps de vie et état
     impressionStructure(info_bot);
     // PARTIE UDP
@@ -92,28 +122,21 @@ int main()
         perror("EnvoieBroadcast.lanceThread");
         exit(-1);
     }
-    while(1){}
+}
 
-     /* // PARTIE SERVEUR TCP
-    char port_s[6] = PORT_TCP_SERVEUR;
-    int socket_tcp;
-    // Initialisation du serveur 
-    socket_tcp = initialisationServeurTCP(port_s);
-    if (socket_tcp < 0)
+int main()
+{
+    clock_t debut = clock(); //prise de temps au moment du démarrage stricte du process
+    srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fonction rand
+
+    // PARTIE envoie UDP en THREAD
+    partie_udp(debut);
+
+    // PARTIE SERVEUR TCP en THREAD
+    partie_tcp();
+
+    while (1)
     {
-        fprintf(stderr, "Initialisation du serveur impossible\n");
-        exit(-1);
     }
-    
-    printf("J'ai bien initialisé la socket du serveur TCP\n");
-
-    //TO DO : à mettre dans un thread
-    //Lancement de la boucle d'ecoute 
-    if (boucleServeurTCP(socket_tcp, nouveauClient) < 0)
-    {
-        fprintf(stderr, "Connexion avec le client impossible\n");
-        exit(-1);
-    } 
- */
     return 0;
 }
