@@ -16,8 +16,8 @@
 #include "utils.h"
 #define PORT_UDP_CLIENT 4242
 #define PORT_UDP_SERVEUR 4242
-#define PORT_TCP_CLIENT 2020
-#define PORT_TCP_SERVEUR "2020"
+#define PORT_TCP_CLIENT 4242
+#define PORT_TCP_SERVEUR "4242"
 #define TAILLE_STRUCTURE 32
 
 extern clock_t debut;

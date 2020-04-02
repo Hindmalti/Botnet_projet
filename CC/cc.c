@@ -13,7 +13,7 @@
 
 #define UDP_PORT_ECOUTE "4242"
 #define IP_BOT "127.0.0.1"
-#define PORT_TCP_BOT 2020
+#define PORT_TCP_BOT 4242
 #define TAILLE 20
 
 /**
