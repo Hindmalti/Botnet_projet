@@ -9,13 +9,16 @@
 #include <netinet/ip.h>
 #include <libnetwork.h>
 #include <libthrd.h>
+#include <sys/sendfile.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <fcntl.h>
 #include "../BOT/utils.h"
 
 #define UDP_PORT_ECOUTE "4242"
 #define IP_BOT "127.0.0.1"
 #define PORT_TCP_BOT 4242
 #define TAILLE 20
-#define MAX 1000
 /**
  * int traitementUDP(info_bot_t structure, int taille)
  * Fonction de traitement de la réception UDP (pour le moment printf la structure seulement)
@@ -58,7 +61,6 @@ void lancementBoucleServeurUDP(void *s)
 void ecriture_socket(void *s)
 { /* 
     char *msg = "Hello from CC\n";
-    int socket_tcp = *((int *)s);
     // Obtient une structure de fichier 
     if (write(socket_tcp, msg, strlen(msg)) < 0)
     {
@@ -66,23 +68,50 @@ void ecriture_socket(void *s)
         exit(-1);
     }
     close(socket_tcp); */
-    char buff[MAX];
     int socket_tcp = *((int *)s);
+    int sent_bytes = 0;
+    char file_size[256];
+    struct stat file_stat;
+    int fd;
+    off_t offset;
+    int remain_data;
     // create file
-    FILE *fp;
-    fp = fopen("libstart.so", "a"); 
-    if (fp == NULL)
+    fd = open("example.so", O_RDONLY); 
+    if (fd == -1)
     {
-        printf("Error IN Opening File .. \n");
+        perror("Error IN Opening File .. \n");
         return;
     }
+    // Récupère la taille du fichier à envoyer
+    if (fstat(fd, &file_stat) < 0)
+    {
+        perror("Bla");
+        exit(EXIT_FAILURE);
+    }
 
-    while (fgets(buff, MAX, fp) != NULL)   // fgets reads upto MAX character or EOF
-        write(socket_tcp, buff, sizeof(buff)); // sent the file data to stream
+    sprintf(file_size, "%d", file_stat.st_size);
+    /* Sending file size */
+    if (send(socket_tcp, file_size, sizeof(file_size), 0) < 0){
+        perror("Error on sending file size");
+        exit(EXIT_FAILURE);
 
-    fclose(fp); // close the file
-    printf("File Sent successfully !!! \n");
+    }
+    printf("Sent file Size: %s bytes\n", file_size);
 
+    offset = 0;
+    remain_data = file_stat.st_size;
+    /* Sending file data */
+    /* Envoie le fichier en plusieurs fois : https://stackoverflow.com/questions/11952898/c-send-and-receive-file */
+    while (((sent_bytes = sendfile(socket_tcp, fd, &offset, BUFSIZ)) > 0) && (remain_data > 0))
+    {
+        printf("1. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+        remain_data -= sent_bytes;
+        printf("2. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+    }
+   
+    close(fd); // close the file
+    // printf("File Sent successfully !!! \n");
+    close(socket_tcp);
 }
 
 /**
@@ -127,7 +156,7 @@ void init_socket(void *arg)
     else
     {
         printf("connected to the server..\n");
-        ecriture_socket(&socket_tcp);
+        ecriture_socket((void *)&socket_tcp);
     }
     return;
 }
@@ -172,7 +201,7 @@ int main()
     //PARTIE Client TCP dans un THREAD
     partie_tcp();
     // PARTIE SERVEUR UDP (écoute) dans un THREAD
-    partie_udp();
+    //partie_udp();
     //while true pour ne pas sortir du main et laisser
     //le temps aux fct de faire des threads etc
     while (1)

