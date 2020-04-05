@@ -5,7 +5,7 @@
 #define SIZE_TIME 5
 #define ETAT_ACTIF '1'
 #define ETAT_INACTIF '0'
-
+#define SIZE_FILE 1000
 typedef struct
 {
     char ID[SIZE_ID];          //ID sur 6 octets
@@ -13,9 +13,14 @@ typedef struct
     char etat;                 // état du bot actif/inactif
 } info_bot_t;
 
-char *create_ID(char *);
+typedef struct
+{
+    char num_cmd; // numéro de la commande 
+} charge_utile_t;
 
+
+char *create_ID(char *);
 char *timeLife(clock_t, char *);
-int remplissageStructure(info_bot_t*, clock_t);
+int remplissageStructure(info_bot_t *, clock_t);
 void impressionStructure(info_bot_t);
 #endif
