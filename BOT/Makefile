@@ -1,6 +1,6 @@
 TARGET=bot
 FLAGS=-Wall -Wextra -I ../libs
-LIBS= -lnetwork -lthrd -lpthread -L ../libs
+LIBS= -lnetwork -lthrd -ldl -lpthread -L ../libs
 
 all: compile
 
