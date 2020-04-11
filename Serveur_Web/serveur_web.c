@@ -53,11 +53,31 @@ void gestionClientWeb(void *s){
     if(fgets(buffer,MAX_BUFFER,dialogue)==NULL) exit(-1);
     if(sscanf(buffer,"%s %s %s",cmd,page,proto)!=3) exit(-1);
     printf("%s\n", buffer);
+
+    int content_length = 0;
+    char *temp = NULL;
+    
     while(fgets(buffer,MAX_BUFFER,dialogue)!=NULL){
-    printf("%s", buffer);
-    if(strcmp(buffer,"\r\n")==0) break;
+        printf("%s", buffer);
+        if(strcmp(buffer,"\r\n")==0) break;
+
+        if((temp = strstr(buffer, "Content-Length:")) != NULL) {
+            content_length = atoi(temp+16);
+        }
+    
+  }
+  printf("MON CONTENT LENGTH = %d\n", content_length);
+  char donnees[content_length];
+  if(content_length > 0) {
+        for(int i = 0; i < content_length; i++) {
+            donnees[i] = fgetc(dialogue);;
+        }
+    	donnees[content_length] = '\0';
+        printf("MON TEXTE = %s", donnees);
+
   }
 
+  //printf("%ld", fread(buffer,strlen(buffer)+1, 1, dialogue));
   // 1) faire un malloc de la longueur de ma page (content-length) qui doit etre
   // en unsigned char
   // 2) recupérer la longueur avec un fread(buffer,0,bytes,dialogue)
@@ -97,14 +117,14 @@ void gestionClientWeb(void *s){
   }
 
     fclose(dialogue);
-    return;
+    
 }
 
 // Fonction qui lance le thread
 void nouveauClientWeb(int dialogue)
 {
 
-    printf("Client Web connecté !");
+    printf("Client Web connecté !\n");
     gestionClientWeb((void *)&dialogue);
 }
 
@@ -133,10 +153,6 @@ if (boucleServeurTCP(s_tcp, nouveauClientWeb) < 0)
     exit(-1);
 }
 
-
-
-
-
-
+}
 
 
