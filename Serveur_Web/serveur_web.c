@@ -29,7 +29,12 @@
 
 
 
-// gestion des requêtes web
+/* gestion des requêtes web 
+- prend en paramètre la socket de dialogue
+- met en place la file descriptor de cette socket afin de read-write dessus
+- 
+
+*/
 void gestionClientWeb(void *s){
    
     char buffer[MAX_BUFFER];
@@ -48,7 +53,7 @@ void gestionClientWeb(void *s){
         exit(EXIT_FAILURE);
     }
     
-    //Gestion des requêtes
+    //Gestion des requêtes POST et GET
 
     if(fgets(buffer,MAX_BUFFER,dialogue)==NULL) exit(-1);
     if(sscanf(buffer,"%s %s %s",cmd,page,proto)!=3) exit(-1);
@@ -57,25 +62,28 @@ void gestionClientWeb(void *s){
     int content_length = 0;
     char *temp = NULL;
     
+    
     while(fgets(buffer,MAX_BUFFER,dialogue)!=NULL){
-        printf("%s", buffer);
+        printf("%s", buffer); // Pour afficher les header
         if(strcmp(buffer,"\r\n")==0) break;
 
         if((temp = strstr(buffer, "Content-Length:")) != NULL) {
-            content_length = atoi(temp+16);
-        }
+            content_length = atoi(temp+16); //On récupère la taille du fichier
+        } 
     
   }
   printf("MON CONTENT LENGTH = %d\n", content_length);
   char donnees[content_length];
   if(content_length > 0) {
         for(int i = 0; i < content_length; i++) {
-            donnees[i] = fgetc(dialogue);;
+            donnees[i] = fgetc(dialogue); //On récupère le contenu du fichier
         }
     	donnees[content_length] = '\0';
-        printf("MON TEXTE = %s", donnees);
+        } 
+        printf(" CONTENU DU FICHIER = %s\n", donnees);
+        printf("fin de mon contenu\n");
 
-  }
+  
 
   //printf("%ld", fread(buffer,strlen(buffer)+1, 1, dialogue));
   // 1) faire un malloc de la longueur de ma page (content-length) qui doit etre
@@ -84,7 +92,8 @@ void gestionClientWeb(void *s){
   // si > 0 alors fficher
 
   
-  //Methode POST
+  // Traitement des réquêtes POST et GET : adapté du serveur web C minimal
+  // le traitement de la requêtes post a été rajouté.
   if(strcasecmp(cmd,"GET")==0 || strcasecmp(cmd,"POST")==0){
   int code=CODE_OK;
   struct stat fstat;
@@ -120,7 +129,7 @@ void gestionClientWeb(void *s){
     
 }
 
-// Fonction qui lance le thread
+// Juste pour rediriger vers la fonction gestClientWeb()
 void nouveauClientWeb(int dialogue)
 {
 
@@ -153,6 +162,8 @@ if (boucleServeurTCP(s_tcp, nouveauClientWeb) < 0)
     exit(-1);
 }
 
+close(s_tcp);
+return 0;
 }
 
 
