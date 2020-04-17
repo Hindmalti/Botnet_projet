@@ -72,7 +72,7 @@ void print_BOT_structure(info_bot_t *bot)
     printf("\t{\n");
     printf("\t\t\"ID\": %s,\n", bot->ID);
     printf("\t\t\"Temps de vie\": %s,\n", bot->life_time);
-    printf("\t\t\"Etat\": %d\n", bot->etat);
+    printf("\t\t\"Etat\": %c\n", bot->etat);
     printf("\t}\n");
 }
 /**void print_listeCU(liste_cu_t liste)
@@ -333,7 +333,7 @@ int main()
 
     print_listeBot(list);
     rechercheBOT("bot200", &list);
-    /* supp_elm_liste_BOT(&list, "bot100");
+    supp_elm_liste_BOT(&list, "bot100");
     print_listeBot(list);
     detruire_liste_BOT(&list);
     print_listeBot(list); 
