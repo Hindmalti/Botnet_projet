@@ -7,18 +7,12 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
-#include <libnetwork.h>
-#include <libthrd.h>
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
-#include "../BOT/utils.h"
 
-#define UDP_PORT_ECOUTE "4242"
-#define IP_BOT "127.0.0.1"
-#define PORT_TCP_BOT 4242
-#define TAILLE 20
+#include "cc.h"
 
 /**
  * int traitementUDP(info_bot_t structure, int taille)
