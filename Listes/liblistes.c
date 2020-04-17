@@ -118,7 +118,7 @@ void print_listeBot(liste_bot_t liste)
  *  param le nom de la charge utile
  *  param la liste des charges utiles
  */
-void rechercheCU(char *filename, liste_cu_t *liste)
+charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste)
 {
     node_cu_t *current = *liste;
     while (current != NULL)
@@ -126,7 +126,8 @@ void rechercheCU(char *filename, liste_cu_t *liste)
         if (strcmp(current->charge->nom, filename) == 0)
         {
             printf("The file with the name %s is here \n", filename);
-            return;
+            print_CU_structure(current->charge);
+            return(current->charge);
         }
         else
         {
@@ -141,7 +142,7 @@ void rechercheCU(char *filename, liste_cu_t *liste)
  *  param l'ID du bot
  *  param la liste des bots
  */
-void rechercheBOT(char *id, liste_bot_t *bot)
+info_bot_t *rechercheBOT(char *id, liste_bot_t *bot)
 {
     node_bot_t *current = *bot;
     while (current != NULL)
@@ -149,7 +150,8 @@ void rechercheBOT(char *id, liste_bot_t *bot)
         if (strcmp(current->bot->ID, id) == 0)
         {
             printf("The file with the ID %s is here \n", id);
-            return;
+            print_BOT_structure(current->bot);
+            return(current->bot);
         }
         else
         {
@@ -310,8 +312,8 @@ void detruire_liste_BOT(liste_bot_t *bot)
     return 0;
 }
  */
-
-/* int main()
+/* 
+int main()
 {
     info_bot_t *bot1 = (info_bot_t *)malloc(sizeof(info_bot_t));
     info_bot_t *bot2 = (info_bot_t *)malloc(sizeof(info_bot_t));
@@ -331,10 +333,10 @@ void detruire_liste_BOT(liste_bot_t *bot)
 
     print_listeBot(list);
     rechercheBOT("bot200", &list);
-    supp_elm_liste_BOT(&list, "bot100");
+    /* supp_elm_liste_BOT(&list, "bot100");
     print_listeBot(list);
     detruire_liste_BOT(&list);
-    print_listeBot(list);
+    print_listeBot(list); 
     return 0;
 }
- */
+*/

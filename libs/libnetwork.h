@@ -10,7 +10,7 @@ int initialisationServeurTCP(char *service);
 int boucleServeurTCP(int socket, void (*traitement)(int));
 
 int initialisationServeurUDP(char *service);
-int boucleServeurUDP(int s, int (*traitement_udp)(info_bot_t info_bot, int taille));
+int boucleServeurUDP(int s, int (*traitement_udp)(info_bot_t *info_bot, int taille));
 
 int openTCPClient(char *hote, int port);
 void sendTCP(int socket, char *message, int length_message);
