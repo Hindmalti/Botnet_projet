@@ -13,9 +13,10 @@
 
 // Type de la fonction présente dans le .so il faut qu'il soit le plus générique possible
 typedef void (*init_f)(void *);
-void start_charge(charge_utile_t *structure);
+void receptionCU(char *filename);
+void start_charge(char *filename);
 void print_CU_structure(charge_utile_t *structure);
-void install_charge(char *file_name, charge_utile_t *structure);
+void install_charge(char *file_name);
 void rm_charge(charge_utile_t *structure);
 void gestionClientTCP(void *s);
 void recvFile(void *s);

