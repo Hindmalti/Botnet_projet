@@ -235,16 +235,16 @@ int initialisationServeurUDP(char *service)
  * param socket d'écoute udp 
  * param traitement_udp Fonction qui va traiter les requêtes UDP entrantes.
  */
-int boucleServeurUDP(int s, int (*traitement_udp)(info_bot_t, int))
+int boucleServeurUDP(int s, int (*traitement_udp)(info_bot_t* , int))
 {
     while (1)
     {
         struct sockaddr_storage adresse;
-        info_bot_t structure;
+        info_bot_t *structure = (info_bot_t *)malloc(sizeof(info_bot_t));
         socklen_t taille = sizeof(adresse);
         char addresse_string[20];
 
-        int nboctets = recvfrom(s,&structure, sizeof(info_bot_t), 0, (struct sockaddr *)&adresse, &taille);
+        int nboctets = recvfrom(s,structure, sizeof(info_bot_t), 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
         //

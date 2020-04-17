@@ -1,6 +1,6 @@
 TARGET=cc
 FLAGS=-Wall -Wextra -I ../libs
-LIBS=-lshm -lnetwork -lthrd -lpthread -L ../libs
+LIBS=-lshm -lnetwork -lthrd -llistes -lpthread -L ../libs
 
 all: compile
 

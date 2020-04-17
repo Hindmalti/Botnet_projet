@@ -11,7 +11,7 @@
 #define PORT_TCP_BOT 4242
 #define TAILLE 20
 
-int traitementUDP(info_bot_t structure, int taille);
+int traitementUDP(info_bot_t *structure, int taille);
 void lancementBoucleServeurUDP(void *s);
 void send_file_tcp(void *s);
 void init_socket(void *arg);

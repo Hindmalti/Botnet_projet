@@ -14,21 +14,22 @@
 
 #include "cc.h"
 
+
+liste_bot_t list;
+
 /**
  * int traitementUDP(info_bot_t structure, int taille)
- * Fonction de traitement de la réception UDP (pour le moment printf la structure seulement)
+ * Fonction de traitement de la réception UDP, stocke les bots reçus dans une liste chainée
  *
  * param structure du bot qu'elle a reçu
- * param taille de la reception (argument utile dans la librairie)
+ * param taille de la reception (argument utile pour la librairie Network)
  */
-int traitementUDP(info_bot_t structure, int taille)
+int traitementUDP(info_bot_t *structure, int taille)
 {
     (void)taille;
-    //impressionStructure(structure);
-    printf("***************La structure ************ \n");
-    printf("L'ID dans la structure est : %s\n", structure.ID);
-    printf("Le temps de vie dans la structure est : %s milliseconds\n", structure.life_time);
-    printf("L'état dans la structure est : %c\n", structure.etat);
+    ajout_tete_bot(&list, structure);
+    print_listeBot(list);
+    //TO DO : écris les ID sur la shmemory
     return 0;
 }
 
@@ -44,6 +45,7 @@ void lancementBoucleServeurUDP(void *s)
 {
     int socket_udp = *((int *)s);
     boucleServeurUDP(socket_udp, traitementUDP);
+    
 }
 
 /**
@@ -84,7 +86,7 @@ void send_file_tcp(void *s)
         exit(EXIT_FAILURE);
     }
 
-    sprintf(file_size, "%d", file_stat.st_size);
+    sprintf(file_size, "%ld", file_stat.st_size);
     /* Sending file size */
     if (send(socket_tcp, file_size, sizeof(file_size), 0) < 0) { 
         perror("Error on sending file size");
@@ -99,9 +101,9 @@ void send_file_tcp(void *s)
     /* Envoie le fichier en plusieurs fois : https://stackoverflow.com/questions/11952898/c-send-and-receive-file */
     while (((sent_bytes = sendfile(socket_tcp, fd, &offset, BUFSIZ)) > 0) && (remain_data > 0))
     {
-        printf("1. Sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+        //printf("1. Sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
         remain_data -= sent_bytes;
-        printf("2. Sent sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+        //printf("2. Sent sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
     }
    
     close(fd); // close the file
@@ -217,9 +219,10 @@ void partie_tcp()
 int main()
 {
     //PARTIE Client TCP dans un THREAD
-    partie_tcp();
+    //partie_tcp();
     // PARTIE SERVEUR UDP (écoute) dans un THREAD
-    //partie_udp();
+    init_listbot(&list);
+    partie_udp();
     //while true pour ne pas sortir du main et laisser
     //le temps aux fct de faire des threads etc
     while (1)
