@@ -15,9 +15,6 @@
 #include "utils.h"
 #include "bot.h"
 
-#include <libthrd.h>
-#include <libnetwork.h>
-#include <liblistes.h>
 
 clock_t debut;
 charge_utile_t charge1;

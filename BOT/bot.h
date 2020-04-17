@@ -1,6 +1,10 @@
 #ifndef BOT_H
 #define BOT_H
 
+#include <libthrd.h>
+#include <libnetwork.h>
+#include <liblistes.h>
+
 #define PORT_UDP_CLIENT 4242
 #define PORT_UDP_SERVEUR 4242
 #define PORT_TCP_CLIENT 4242
