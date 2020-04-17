@@ -9,13 +9,11 @@ Coté serveur :
 Ensuite,
 
 Coté navigateur web :
-
 1 - ouvrir votre navigateur
 2 - mettre l'url : localhost:8000/formulaire.html et valider
 3 - Normalement le formulaire doit s'afficher. Là vous choisissez un fichier et vous envoyez
 
 Enfin :
-
 Pour observer ce qui se passe, retournez dans votre terminal où le serveur à été lancé.
 Normalement la requête POST aura été effectuée et vous devrieez vous les différents headers.
 Aussi Vous pourrez voir le contenu de votre fichier s'afficher en clair (dû à un printf).
