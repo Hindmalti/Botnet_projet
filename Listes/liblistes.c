@@ -134,7 +134,7 @@ charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste)
             current = (liste_cu_t)current->next;
         }
     }
-    printf("Error : this file doesn't exist\n");
+    perror("Error : this file doesn't exist\n");
 }
 
 /** void rechercheBOT(char *id, liste_bot_t *bot)
