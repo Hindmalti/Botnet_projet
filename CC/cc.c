@@ -17,6 +17,18 @@
 
 liste_bot_t list;
 
+/** void ecritureIDshmem(info_bot_t *bot)
+ *  Fonction permettant d'écrire dans la shared memory l'ID des bots 
+ *  afin que le serveur web puisse savoir quels sont les bots présents
+ *  param pointeur vers le bot
+ */ 
+void ecritureIDshmem(info_bot_t *bot){
+
+    char *shmem = (char*)create_shared_memory(sizeof(char));
+    lecture_ecriture_shm(shmem, bot->ID);
+    printf("La shared memory contient : %s\n",shmem);
+}
+
 /**
  * int traitementUDP(info_bot_t structure, int taille)
  * Fonction de traitement de la réception UDP, stocke les bots reçus dans une liste chainée
@@ -30,6 +42,7 @@ int traitementUDP(info_bot_t *structure, int taille)
     ajout_tete_bot(&list, structure);
     print_listeBot(list);
     //TO DO : écris les ID sur la shmemory
+    ecritureIDshmem(structure);
     return 0;
 }
 
