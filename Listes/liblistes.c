@@ -81,6 +81,10 @@ void print_BOT_structure(info_bot_t *bot)
  */
 void print_listeCU(liste_cu_t liste)
 {
+    if (liste == NULL)
+    {
+        printf("List is empty.");
+    }
     printf("[\n");
     while (liste != NULL)
     {
@@ -96,6 +100,10 @@ void print_listeCU(liste_cu_t liste)
  */
 void print_listeBot(liste_bot_t liste)
 {
+    if (liste == NULL)
+    {
+        printf("List is empty.");
+    }
     printf("[\n");
     while (liste != NULL)
     {
@@ -156,12 +164,13 @@ void rechercheBOT(char *id, liste_bot_t *bot)
  * param nom de la charge utile
  */
 
-void supp_tete(liste_cu_t *liste)
+/* void supp_tete(liste_cu_t *liste)
 {
     node_cu_t *tmp = *liste;
+    free(tmp->charge);
     *liste = (liste_cu_t)tmp->next;
     free(tmp);
-}
+} */
 /** void supp_elm_liste_CU(liste_cu_t *liste, char *filename)
  * Fonction permettant de supprimer un élement de la liste des CU grâce à son nom 
  * param pointeur vers la liste des charges utiles
@@ -176,6 +185,8 @@ void supp_elm_liste_CU(liste_cu_t *liste, char *filename)
     {
         *liste = (liste_cu_t)current->next;
         printf("The file '%s' will be deleted ! \n", filename);
+        //TODO : A faire partout, il faut free l'espace mémoire occupé par la charge
+        free(current->charge);
         free(current);
         return;
     }
@@ -193,7 +204,8 @@ void supp_elm_liste_CU(liste_cu_t *liste, char *filename)
 
     prev->next = current->next;
     printf("The file '%s' will be deleted ! \n", filename);
-    free(current); // Free memory
+    free(current->charge);
+    free(current);
 }
 
 /** void supp_elm_liste_BOT(liste_bot_t *bot, char *id)
@@ -209,6 +221,8 @@ void supp_elm_liste_BOT(liste_bot_t *bot, char *id)
     if (current != NULL && (strcmp(current->bot->ID, id) == 0))
     {
         *bot = (liste_bot_t)current->next;
+        printf("The bot  with ID : '%s' will be deleted ! \n", id);
+        free(current->bot);
         free(current);
         return;
     }
@@ -225,8 +239,9 @@ void supp_elm_liste_BOT(liste_bot_t *bot, char *id)
     }
 
     prev->next = current->next;
-
-    free(current); // Free memory
+    printf("The bot  with ID : '%s' will be deleted ! \n", id);
+    free(current->bot);
+    free(current);
 }
 
 /** void detruire_liste_CU(liste_cu_t *list)
@@ -240,10 +255,13 @@ void detruire_liste_CU(liste_cu_t *list)
     while (current != NULL)
     {
         free(current->charge);
-        next = (liste_cu_t)current->next;
+        next = current->next;
         free(current);
         current = next;
     }
+    //Premier élement vers NULL
+    *list = NULL;
+    printf("SUCCESSFULLY DELETED ALL NODES OF LINKED LIST\n");
 }
 
 /** void detruire_liste_BOT(liste_bot_t *bot)
@@ -257,28 +275,31 @@ void detruire_liste_BOT(liste_bot_t *bot)
     while (current != NULL)
     {
         free(current->bot);
-        next = (liste_bot_t)current->next;
+        next = current->next;
         free(current);
         current = next;
     }
+    //Premier élement vers NULL
+    *bot = NULL;
+    printf("SUCCESSFULLY DELETED ALL NODES OF LINKED LIST\n");
 }
-int main()
+/* int main()
 {
-    charge_utile_t charge1;
-    charge_utile_t charge2;
-    strcpy(charge1.nom, "Charge1");
-    charge1.resultat = 0;
-    charge1.executed = 1;
+    charge_utile_t *charge1 = (charge_utile_t *)malloc(sizeof(charge_utile_t));
+    charge_utile_t *charge2 = (charge_utile_t *)malloc(sizeof(charge_utile_t));
+    strcpy(charge1->nom, "Charge1");
+    charge1->resultat = 0;
+    charge1->executed = 1;
 
-    strcpy(charge2.nom, "Charge2");
-    charge2.resultat = 500;
-    charge2.executed = 1;
+    strcpy(charge2->nom, "Charge2");
+    charge2->resultat = 500;
+    charge2->executed = 1;
 
     liste_cu_t list;
     init_listCU(&list);
 
-    ajout_tete_cu(&list, &charge1);
-    ajout_tete_cu(&list, &charge2);
+    ajout_tete_cu(&list, charge1);
+    ajout_tete_cu(&list, charge2);
 
     print_listeCU(list);
     rechercheCU("Charge2", &list);
@@ -288,3 +309,32 @@ int main()
     print_listeCU(list);
     return 0;
 }
+ */
+
+/* int main()
+{
+    info_bot_t *bot1 = (info_bot_t *)malloc(sizeof(info_bot_t));
+    info_bot_t *bot2 = (info_bot_t *)malloc(sizeof(info_bot_t));
+    strcpy(bot1->ID, "bot100");
+    strcpy(bot1->life_time, "0,02");
+    //strcpy(bot1->etat, "0");
+
+    strcpy(bot2->ID, "bot200");
+    strcpy(bot2->life_time, "0,01");
+    //strcpy(bot2->etat, "1");
+
+    liste_bot_t list;
+    init_listbot(&list);
+
+    ajout_tete_bot(&list, bot1);
+    ajout_tete_bot(&list, bot2);
+
+    print_listeBot(list);
+    rechercheBOT("bot200", &list);
+    supp_elm_liste_BOT(&list, "bot100");
+    print_listeBot(list);
+    detruire_liste_BOT(&list);
+    print_listeBot(list);
+    return 0;
+}
+ */

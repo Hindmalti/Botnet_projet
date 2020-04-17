@@ -1,30 +1,39 @@
 #ifndef LIBLISTES_H
 #define LIBLISTES_H
-struct node
-{
-    void *data;
-    struct node *next;
-};
 
-typedef struct node *llist;
+#include "../BOT/utils.h"
 
-/* llist_create: Create a linked list */
-llist *llist_create(void *data);
 
-/* llist_free: Free a linked list */
-void llist_free(llist *list);
+typedef struct {
+    charge_utile_t *charge;
+    struct node_cu_t *next;
+} node_cu_t, *liste_cu_t;
 
-/* llist_add_inorder: Add to sorted linked list */
-int llist_add_inorder(void *data, llist *list,
-                      int (*comp)(void *, void *));
 
-/* llist_push: Add to head of list */
-void llist_push(llist *list, void *data);
+typedef struct {
+    info_bot_t *bot;
+    struct node_bot_t *next;
+} node_bot_t, *liste_bot_t;
 
-/* llist_pop: remove and return head of linked list */
-void *llist_pop(llist *list);
+void init_listCU(liste_cu_t *list);
+void init_listbot(liste_bot_t *bot);
 
-/* llist_print: print linked list */
-void llist_print(llist *list, void (*print)(void *data));
+void ajout_tete_cu(liste_cu_t *list, charge_utile_t *charge);
+void ajout_tete_bot(liste_bot_t *list, info_bot_t *bot);
+
+void print_CU_structure(charge_utile_t *charge);
+void print_BOT_structure(info_bot_t *bot);
+
+void print_listeCU(liste_cu_t liste);
+void print_listeBot(liste_bot_t liste);
+
+void rechercheCU(char *filename, liste_cu_t *liste);
+void rechercheBOT(char *id, liste_bot_t *bot);
+
+void supp_elm_liste_CU(liste_cu_t *liste, char *filename);
+void supp_elm_liste_BOT(liste_bot_t *bot, char *id);
+
+void detruire_liste_CU(liste_cu_t *list);
+void detruire_liste_BOT(liste_bot_t *bot);
 
 #endif
