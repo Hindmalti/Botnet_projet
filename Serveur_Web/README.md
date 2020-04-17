@@ -1,4 +1,4 @@
-#PROCÉDURE d'utilisation du server Web
+# PROCÉDURE d'utilisation du server Web
 
 Coté serveur :
 
@@ -26,5 +26,3 @@ Prochaines étapes :
 - Récupérer le nom du fichier qui servira à nommer la charge
 - retirer les lignes contenant "content-disposition" dans le contenu du fichier.
 - envoyer les données obtenues dans une shm au CC.
-
-
