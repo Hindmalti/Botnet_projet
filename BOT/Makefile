@@ -1,20 +1,32 @@
-TARGET=bot
-FLAGS=-Wall -Wextra -I ../libs
-LIBS= -lnetwork -lthrd -ldl -lpthread -llistes -L ../libs
+TARGET = bot
+SRCS = $(wildcard *.c)
+OBJS = $(SRCS:.c=.o)
+LIBS = -ldl -lpthread
+LOCAL_LIBS = -L ../libs
+LOCAL_LIBS += -lnetwork -lthrd -llistes
+CFLAGS = -Wall -Wextra -pedantic -I ../libs
+DFLAGS = -g -DDEBUG
+
 
 all: compile
 
-debug: FLAGS += -DDEBUG -g
+debug: FLAGS += $(DFLAGS)
 debug: compile
 
 clean:
-	rm -f *.o *.a
+	rm -f $(OBJS) $(TARGET)
 	rm -f ../bin/$(TARGET)
 
 exec: compile
 	./$(TARGET)
 
-compile:
+%.o: %.c %.h
+	 $(CC) -c $(CFLAGS) -o $@ $<
+
+compile: $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $^ $(LOCAL_LIBS) $(LIBS)
+	mkdir -p ../bin
+	cp $(TARGET) ../bin/
 	gcc *.c -o $(TARGET) $(LIBS) $(FLAGS)
 	mkdir -p ../bin
 	cp $(TARGET) ../bin/
