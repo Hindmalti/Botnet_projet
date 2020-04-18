@@ -1,4 +1,5 @@
 TARGET=cc
+CC=gcc
 SRCS=$(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 LIBS = -lpthread -ldl
@@ -24,8 +25,5 @@ exec: compile
 
 compile: $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $^ $(LOCAL_LIBS) $(LIBS)
-	mkdir -p ../bin
-	cp $(TARGET) ../bin/
-	gcc *.c -o $(TARGET) $(LIBS) $(FLAGS)
 	mkdir -p ../bin
 	cp $(TARGET) ../bin/

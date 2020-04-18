@@ -14,3 +14,4 @@ Faute de temps, certaines fonctionalités aurait pu être améliorées :
 
 * Remplacer les listes chainées par des arbres binaires afin de rendre la complexité de recherche nlog(n) au lieu de n, et ce en faisant une recherche dicotomique.
 * Enregistrer le resulat de l'execution d'une charge utile dans une structure : pour pourvoir renvoyer au CC tous les resultats de toutes les exécutions , et pas seulement le denier resultat(car pour le moment, le dernier écrase la valeur du précedent).
+* Permettre à l'utilisateur de changer le nom de la charge utile (c.a.d que le nom du fichier et le nom dans la structure soient differents)
