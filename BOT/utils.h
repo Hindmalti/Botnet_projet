@@ -16,7 +16,7 @@ typedef struct
 
 typedef struct {
     void *plugin;
-    char nom[10];
+    char *nom;
     //struct sockaddr_in addresse_cc;
     int resultat;//0 si ça s'est bien passé, autre 
     char executed; //0 si non executée, 1 sinon. A la fin de l'execution, on met le résultat dans resultat et on passe l'exec à 1
