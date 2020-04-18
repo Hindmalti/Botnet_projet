@@ -10,7 +10,7 @@ export CFLAGS = -Wall -Wextra -pedantic
 # Constantes liees au projet
 #
 
-DIRS = Threads Network CC BOT
+DIRS = Threads Network CC BOT Listes IPC
 
 #
 # La cible generale
