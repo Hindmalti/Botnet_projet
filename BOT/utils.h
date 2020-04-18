@@ -1,11 +1,14 @@
 #ifndef UTILS_H
 #define UTILS_H
+
 #include <time.h>
+
 #define SIZE_ID 7
 #define SIZE_TIME 5
 #define ETAT_ACTIF '1'
 #define ETAT_INACTIF '0'
 #define SIZE_FILE 1000
+
 typedef struct
 {
     char ID[SIZE_ID];          //ID sur 6 octets
@@ -27,4 +30,5 @@ char *create_ID(char *);
 char *timeLife(clock_t, char *);
 int remplissageStructure(info_bot_t *, clock_t);
 void impressionStructure(info_bot_t);
+
 #endif

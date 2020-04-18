@@ -108,48 +108,64 @@ void rm_charge(charge_utile_t *structure)
     // TO DO : rm de la /usr/lib
 }
 
-//void receive_cmd_TCP(void *socket)
- /* void receive_cmd_TCP(void *arg)
+charge_utile_t *getChargeFromMessage(int socket){
+    char filename[TAILLE_FILENAME];
+    if(receiveTCP(socket, filename, TAILLE_FILENAME) < 0){
+        printf("Erreur dans la réception du nom de la charge utile");
+        return NULL;
+    }
+    return rechercheCU(filename, &list_CU);
+
+}
+
+/** void receive_cmd_TCP(void *arg)
+ *  Fonction qui reçoit une numéro de commande et en fct de la commande il interprète 
+ */
+void receive_cmd_TCP(void *arg)
 {
     printf("[receive_cmd_TCP]Start\n");
-    char cmd_recue;
+    char *cmd_recue;
     int socket_tcp = *((int *)socket);
+    charge_utile_t *charge;
     // Obtient une structure de fichier
     FILE *dialogue = fdopen(socket_tcp, "a+");
-    receiveTCP(socket_tcp, cmd_recue, sizeof(cmd_recue));
-    printf("[receive_cmd_TCP]La cmd que j'ai lu de mon client TCP est : %c\n", cmd_recue);
     if (dialogue == NULL)
     {
         perror("receive_cmd_TCP.fdopen");
         exit(EXIT_FAILURE);
     }
 
-    switch (cmd_recue)
+    if(receiveTCP(socket_tcp, cmd_recue, sizeof(cmd_recue)) != sizeof(cmd_recue)){
+        printf("Erreur dans la récéption de la commande TCP\n");
+    };
+    printf("[receive_cmd_TCP]La cmd que j'ai lu de mon client TCP est : %s\n", cmd_recue);
+    switch (*cmd_recue)
     {
     case '1': // STATUT
-        send_statut();
+        //send_statut();
         break;
 
     case '2': //INSTALL
-        install_charge(filename);
+        recvFile(&socket_tcp);
+        //install_charge(filename);
         break;
     case '3': //START
-        start_charge(filename);
+        charge = getChargeFromMessage(socket_tcp); //=> charge_utile_t*;
+        if(charge == NULL) {
+            perror("Can't start charge utile\n");
+            exit(-1);
+        }
+        start_charge(charge->nom);
         break;
     case '4': //RM
-        rm_charge(filename);
+        getChargeFromMessage(socket_tcp);
+        rm_charge(charge->nom);
         break;
     case '5': //QUIT
         break;
     }
-    //Lancement de la réception de la charge utile dans un thread
-    if (lanceThread(recvFile, (void *)&socket_tcp, sizeof(socket_tcp)) < 0)
-    {
-        perror("ReceiveFile.lanceThread");
-        exit(-1);
-    }
 }
- */
+
 /**
  * void gestionClientTCP(void *s)
  * Fonction qui reçoi le msg envoyée par le CC (qui deviendra un ordre plus tard)

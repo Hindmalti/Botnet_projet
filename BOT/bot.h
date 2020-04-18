@@ -10,6 +10,7 @@
 #define PORT_TCP_CLIENT 4242
 #define PORT_TCP_SERVEUR "4242"
 #define TAILLE_STRUCTURE 32
+#define TAILLE_FILENAME 20
 
 // Type de la fonction présente dans le .so il faut qu'il soit le plus générique possible
 typedef void (*init_f)(void *);

