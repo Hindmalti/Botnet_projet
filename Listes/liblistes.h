@@ -2,7 +2,7 @@
 #define LIBLISTES_H
 
 #include "../BOT/utils.h"
-
+#include <dlfcn.h>
 
 typedef struct {
     charge_utile_t *charge;
@@ -32,6 +32,8 @@ info_bot_t *rechercheBOT(char *id, liste_bot_t *bot);
 
 void supp_elm_liste_CU(liste_cu_t *liste, char *filename);
 void supp_elm_liste_BOT(liste_bot_t *bot, char *id);
+
+void supp_charge(charge_utile_t *charge);
 
 void detruire_liste_CU(liste_cu_t *list);
 void detruire_liste_BOT(liste_bot_t *bot);

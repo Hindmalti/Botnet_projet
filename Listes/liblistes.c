@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dlfcn.h>
 
 /** void init_listCU(liste_cu_t* list)
  * Fonction permetant d'inistialiser une liste de charges utiles
@@ -134,6 +135,7 @@ charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste)
             current = (liste_cu_t)current->next;
         }
     }
+    return NULL;
     perror("Error : this file doesn't exist\n");
 }
 
@@ -158,6 +160,7 @@ info_bot_t *rechercheBOT(char *id, liste_bot_t *bot)
             current = (liste_bot_t)current->next;
         }
     }
+    return NULL;
     printf("Error : this Bot doesn't exist\n");
 }
 /** void supp_tete(liste_cu_t *liste)
@@ -187,7 +190,8 @@ void supp_elm_liste_CU(liste_cu_t *liste, char *filename)
     {
         *liste = (liste_cu_t)current->next;
         printf("The file '%s' will be deleted ! \n", filename);
-        //TODO : A faire partout, il faut free l'espace mémoire occupé par la charge
+        //free l'espace mémoire occupé par la charge
+        supp_charge(current->charge);
         free(current->charge);
         free(current);
         return;
@@ -208,6 +212,14 @@ void supp_elm_liste_CU(liste_cu_t *liste, char *filename)
     printf("The file '%s' will be deleted ! \n", filename);
     free(current->charge);
     free(current);
+}
+/** void _supp_charge(charge_utile_t *charge) 
+ * Fonction permettant de free les pointeurs proprement
+ * param pointeur vers la charge utile
+ */ 
+void supp_charge(charge_utile_t *charge) {
+    dlclose(charge->plugin);
+    free(charge->nom);
 }
 
 /** void supp_elm_liste_BOT(liste_bot_t *bot, char *id)
@@ -257,7 +269,7 @@ void detruire_liste_CU(liste_cu_t *list)
     while (current != NULL)
     {
         free(current->charge);
-        next = current->next;
+        next = (node_cu_t*)current->next;
         free(current);
         current = next;
     }
@@ -277,7 +289,7 @@ void detruire_liste_BOT(liste_bot_t *bot)
     while (current != NULL)
     {
         free(current->bot);
-        next = current->next;
+        next = (node_bot_t*)current->next;
         free(current);
         current = next;
     }
