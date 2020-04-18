@@ -13,7 +13,6 @@
 
 // Type de la fonction présente dans le .so il faut qu'il soit le plus générique possible
 typedef void (*init_f)(void *);
-void receptionCU(char *filename);
 void start_charge(char *filename);
 void print_CU_structure(charge_utile_t *structure);
 void install_charge(char *file_name);

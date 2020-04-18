@@ -14,19 +14,19 @@
 
 #include "cc.h"
 
-
 liste_bot_t list;
 
 /** void ecritureIDshmem(info_bot_t *bot)
  *  Fonction permettant d'écrire dans la shared memory l'ID des bots 
  *  afin que le serveur web puisse savoir quels sont les bots présents
  *  param pointeur vers le bot
- */ 
-void ecritureIDshmem(info_bot_t *bot){
+ */
+void ecritureIDshmem(info_bot_t *bot)
+{
 
-    char *shmem = (char*)create_shared_memory(sizeof(char));
+    char *shmem = (char *)create_shared_memory(sizeof(char));
     lecture_ecriture_shm(shmem, bot->ID);
-    printf("La shared memory contient : %s\n",shmem);
+    printf("La shared memory contient : %s\n", shmem);
 }
 
 /**
@@ -58,7 +58,6 @@ void lancementBoucleServeurUDP(void *s)
 {
     int socket_udp = *((int *)s);
     boucleServeurUDP(socket_udp, traitementUDP);
-    
 }
 
 /**
@@ -85,14 +84,16 @@ void send_file_tcp(void *s)
     int fd;
     off_t offset;
     int remain_data;
-    // create file
+    
+
+    //Read file
     fd = open("example.so", O_RDONLY);
     if (fd == -1)
     {
         perror("Error IN Opening File .. \n");
         return;
     }
-    // Récupère la taille du fichier à envoyer
+    //Récupère la taille du fichier à envoyer
     if (fstat(fd, &file_stat) < 0)
     {
         perror("Bla");
@@ -101,10 +102,10 @@ void send_file_tcp(void *s)
 
     sprintf(file_size, "%ld", file_stat.st_size);
     /* Sending file size */
-    if (send(socket_tcp, file_size, sizeof(file_size), 0) < 0) { 
+    if (send(socket_tcp, file_size, sizeof(file_size), 0) < 0)
+    {
         perror("Error on sending file size");
         exit(EXIT_FAILURE);
-
     }
     printf("Sent file Size: %s bytes\n", file_size);
 
@@ -114,16 +115,16 @@ void send_file_tcp(void *s)
     /* Envoie le fichier en plusieurs fois : https://stackoverflow.com/questions/11952898/c-send-and-receive-file */
     while (((sent_bytes = sendfile(socket_tcp, fd, &offset, BUFSIZ)) > 0) && (remain_data > 0))
     {
-        //printf("1. Sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+        printf("1. Sent %d bytes from file's data, offset is now : %ld and remaining data = %d\n", sent_bytes, offset, remain_data);
         remain_data -= sent_bytes;
-        //printf("2. Sent sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", sent_bytes, offset, remain_data);
+        printf("2. Sent sent %d bytes from file's data, offset is now : %ld and remaining data = %d\n", sent_bytes, offset, remain_data);
     }
-   
+    printf("All file has been sended\n");
+    // Test : Que se passe-t-il si on attend un certain moment avant de close la socket ?
     close(fd); // close the file
     // printf("File Sent successfully !!! \n");
     close(socket_tcp);
 }
-
 
 /**
  * void send_commad_tcp(void *s, char num)
@@ -136,16 +137,17 @@ void send_file_tcp(void *s)
  * param pointeur vers la socket TCP
  * 
  */
-/* 
-void send_commad_tcp(void *s)
+ 
+/* void send_commad_tcp(void *s)
 {
     int socket_tcp = *((int *)s);
     char num;
     printf("Donnez un numéro de commande : \n");
+    //TODO : Retirer le scanf
     scanf("%c", &num);
-    write(socket_tcp, (void *)num, strlen(num));      
+    write(socket_tcp, &num, strlen(&num));      
     send_file_tcp((void *) &socket_tcp);
-} */
+}  */
 
 /**
  * void init_socket()
@@ -232,10 +234,10 @@ void partie_tcp()
 int main()
 {
     //PARTIE Client TCP dans un THREAD
-    //partie_tcp();
+    partie_tcp();
     // PARTIE SERVEUR UDP (écoute) dans un THREAD
-    init_listbot(&list);
-    partie_udp();
+    //init_listbot(&list);
+    //partie_udp();
     //while true pour ne pas sortir du main et laisser
     //le temps aux fct de faire des threads etc
     while (1)
