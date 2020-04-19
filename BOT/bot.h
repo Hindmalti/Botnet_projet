@@ -16,6 +16,7 @@
 #define SIZE_TIME 5
 #define SIZE_FILE 1000
 
+
 typedef struct
 {
     char ID[SIZE_ID];          //ID sur 6 octets

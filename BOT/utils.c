@@ -4,9 +4,9 @@
 #include <unistd.h>
 
 #include "bot.h"
-// port et IP fixes momentanément 
-#define PORT_UDP_CLIENT "4242"
-#define IP_UDP_CLIENT "127.0.0.1"
+ // port et IP fixes momentanément 
+
+#define IP_UDP_CLIENT "127.0.0.1" 
 /**
  * fct char *create_ID(char *chaine)
  * Fonction de création d'ID unique pour les bots
@@ -64,7 +64,7 @@ int remplissageStructure(info_bot_t *structure, clock_t debut)
     strcpy(structure->ID, create_ID(id));
     sleep(5);
     strcpy(structure->life_time, timeLife(debut, timeSpent));
-    strcpy(structure->etat, BOT_INACTIF);
+    //strcpy(structure->etat, BOT_INACTIF);
     return 0;
 }
 
