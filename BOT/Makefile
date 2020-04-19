@@ -11,7 +11,7 @@ DFLAGS = -g -DDEBUG
 
 all: compile
 
-debug: FLAGS += $(DFLAGS)
+debug: CFLAGS += $(DFLAGS)
 debug: compile
 
 clean:

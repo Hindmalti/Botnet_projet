@@ -60,16 +60,13 @@ int remplissageStructure(info_bot_t *structure, clock_t debut)
     //initialisation de la structure
     char id[SIZE_ID];
     char timeSpent[SIZE_TIME];
-    char etat = ETAT_ACTIF;
     //remplissage
     strcpy(structure->ID, create_ID(id));
     sleep(5);
     strcpy(structure->life_time, timeLife(debut, timeSpent));
-    structure->etat = etat;
+    strcpy(structure->etat, BOT_INACTIF);
     return 0;
 }
-
-//On ne renvoie JAMAIS une structure, on modifie celle qu'on a passée en paramètre via un pointeur
 
 /**
  * void impressionStructure(info_bot_t info_bot)
