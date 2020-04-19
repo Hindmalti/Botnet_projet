@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include "bot.h"
- // port et IP fixes momentanément 
+// port et IP fixes momentanément 
 
 #define IP_UDP_CLIENT "127.0.0.1" 
 /**

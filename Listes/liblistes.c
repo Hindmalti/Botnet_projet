@@ -120,8 +120,14 @@ void print_listeBot(liste_bot_t liste)
  *  param la liste des charges utiles
  *  return la structure de la charge utile
  */
-charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste)
+int rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge)
 {
+    if(liste == NULL)
+    {
+        perror("La liste est inexistante\n");
+        *charge = NULL;
+        return 1;
+    }
     node_cu_t *current = *liste;
     while (current != NULL)
     {
@@ -129,15 +135,17 @@ charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste)
         {
             printf("The file with the name %s is here \n", filename);
             print_CU_structure(current->charge);
-            return(current->charge);
+            *charge = current->charge;
+            return 0;
         }
         else
         {
             current = (liste_cu_t)current->next;
         }
     }
-    return NULL;
-    perror("Error : this file doesn't exist\n");
+    perror("La charche utile n'est pas présente dans la liste\n");
+    *charge = NULL;
+    return 0;
 }
 
 /** void rechercheBOT(char *id, liste_bot_t *bot)
@@ -205,7 +213,7 @@ void supp_elm_liste_CU(liste_cu_t *liste, char *filename)
     // Cas où le fichier n'est pas dans la liste
     if (current == NULL)
     {
-        printf("Error : this file doesn't exist\n");
+        printf("La charge utile n'est pas présente dans la liste\n");
         return;
     }
 

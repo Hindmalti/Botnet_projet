@@ -27,7 +27,7 @@ void print_BOT_structure(info_bot_t *bot);
 void print_listeCU(liste_cu_t liste);
 void print_listeBot(liste_bot_t liste);
 
-charge_utile_t * rechercheCU(char *filename, liste_cu_t *liste);
+int rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge);
 info_bot_t *rechercheBOT(char *id, liste_bot_t *bot);
 
 void supp_elm_liste_CU(liste_cu_t *liste, char *filename);

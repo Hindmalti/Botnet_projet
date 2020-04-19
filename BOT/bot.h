@@ -10,8 +10,8 @@
 #define PORT_TCP_SERVEUR "4242"
 #define TAILLE_STRUCTURE 32
 #define TAILLE_FILENAME 20
-#define BOT_ACTIF "1"
-#define BOT_INACTIF "0"
+#define BOT_ACTIF 1
+#define BOT_INACTIF 0
 #define SIZE_ID 7
 #define SIZE_TIME 5
 #define SIZE_FILE 1000
@@ -39,7 +39,7 @@ typedef struct
 extern clock_t debut;
 extern charge_utile_t charge1;
 extern charge_utile_t charge2;
-extern info_bot_t *bot;
+
 
 
 typedef void (*init_f)(void *);

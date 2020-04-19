@@ -32,8 +32,10 @@ int main()
     // PARTIE envoie UDP en THREAD
     //partie_udp_BOT(debut);
 
+    bot = (info_bot_t *)malloc(sizeof(info_bot_t));
+
     // PARTIE SERVEUR TCP en THREAD
-    // init_listCU(&list_CU);
+    init_listCU(&list_CU);
     partie_tcp();
 
     while (1)
