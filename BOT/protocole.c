@@ -1,4 +1,24 @@
-#include "protocole.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <errno.h>
+#include <time.h>
+#include <unistd.h>
+#include <dlfcn.h>
+
+
+#include <libthrd.h>
+#include <libnetwork.h>
+#include <liblistes.h>
+#include "bot.h"
+
+extern liste_cu_t list_CU;
 
 /**
  * void send_status(info_bot_t info, int socket_tcp)
@@ -10,7 +30,7 @@ void send_status(int socket_tcp)
 {
     printf("[send_status]Start\n");
     char status;
-    strcpy(&status,&(bot->etat));
+    //strcpy(&status,&(bot->etat));
     printf(" Le status que j'ai récup est : %c\n",status);
     if (write(socket_tcp, &status, sizeof(char)) < 0)
     {

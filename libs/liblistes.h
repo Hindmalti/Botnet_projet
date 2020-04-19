@@ -1,7 +1,7 @@
 #ifndef LIBLISTES_H
 #define LIBLISTES_H
 
-#include "../BOT/utils.h"
+#include "../BOT/bot.h"
 #include <dlfcn.h>
 
 typedef struct {

@@ -18,7 +18,7 @@
 
 #include "libnetwork.h"
 #include "../Threads/libthrd.h"
-#include "../BOT/utils.h"
+#include "../BOT/bot.h"
 
 #define MAX_TCP_CONNEXION 10
 #define MAX_UDP_MESSAGE 1024

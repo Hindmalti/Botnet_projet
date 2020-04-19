@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "utils.h"
+#include "bot.h"
 // port et IP fixes momentanément 
 #define PORT_UDP_CLIENT "4242"
 #define IP_UDP_CLIENT "127.0.0.1"

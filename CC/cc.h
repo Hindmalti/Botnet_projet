@@ -23,7 +23,7 @@
 #include "protocole.h"
 #include "ecoute_udp.h"
 #include "envoie_tcp.h"
-#include "../BOT/utils.h"
+#include "../BOT/bot.h"
 
 #define UDP_PORT_ECOUTE "4242"
 #define IP_BOT "127.0.0.1"

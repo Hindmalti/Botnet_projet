@@ -2,7 +2,7 @@
 #define LIBNET_H
 
 #include <stdint.h>
-#include "../BOT/utils.h"
+#include "../BOT/bot.h"
 
 void sendUDPBroadcast(info_bot_t info_bot, int taille_structure, int port);
 

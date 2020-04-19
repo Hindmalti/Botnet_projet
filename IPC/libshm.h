@@ -9,7 +9,7 @@
 #define SHM_SIZE 30
 /**** Prototypes ****/
 void *create_shared_memory();
-void *lectureShm(void *key);
+void *lectureShm(key_t key);
 void *ecritureShm(void *key, void *msg);
 
 #endif
