@@ -114,10 +114,11 @@ void print_listeBot(liste_bot_t liste)
     printf("]\n");
 }
 
-/** void rechercheCU(char *filename, liste_cu_t *liste)
+/** charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste)
  *  Fonction permettant de rechercher une charge utile grâce à son nom
  *  param le nom de la charge utile
  *  param la liste des charges utiles
+ *  return la structure de la charge utile
  */
 charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste)
 {
