@@ -27,7 +27,8 @@
 #define CODE_OK  200
 #define CODE_NOTFOUND 404
 
-
+#define NB_BOTS 3
+char* ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
 
 /* gestion des requêtes web 
 - prend en paramètre la socket de dialogue
@@ -36,6 +37,8 @@
 
 */
 void gestionClientWeb(void *s){
+
+    
    
     char buffer[MAX_BUFFER];
     char cmd[MAX_BUFFER];
@@ -52,6 +55,18 @@ void gestionClientWeb(void *s){
         perror("gestionClient.fdopen");
         exit(EXIT_FAILURE);
     }
+    
+    //PageWeb d'acceuil chargée dynamiquement créant les bouton
+    // Pour chaque bot présent dans la liste
+
+      //char liste[MAX_BUFFER];
+      //while(fgets(liste,MAX_BUFFER,dialogue)!=NULL){
+       
+        
+    /* Termine la connexion */
+   
+    //}
+
     
     //Gestion des requêtes POST et GET
 
@@ -123,7 +138,7 @@ void gestionClientWeb(void *s){
     
     close(fd);
     }
-  }
+  } 
 
     fclose(dialogue);
     
@@ -132,7 +147,7 @@ void gestionClientWeb(void *s){
 // Juste pour rediriger vers la fonction gestClientWeb()
 void nouveauClientWeb(int dialogue)
 {
-
+   
     printf("Client Web connecté !\n");
     gestionClientWeb((void *)&dialogue);
 }
@@ -142,12 +157,28 @@ void nouveauClientWeb(int dialogue)
 
 int main(void){
 
+
+FILE* acceuil = fopen("www/acceuil.html", "w");
+if (acceuil != NULL){
+    //fprintf(dialogue,"HTTP/1.1 200 OK\n");
+         //fprintf(dialogue,"Content-Type: text/html;\n\n");
+    fprintf(acceuil,"<!DOCTYPE html>\n<html>\n<head>");
+    fprintf(acceuil, "<title> BOTS DISPONIBLES </title></head>");
+    fprintf(acceuil, "<body><h1 color:rgb(250,128,114)> BOTS </h1><h3>Groupe: Hind MALTI & Loris AHOUASSOU</h3>");
+    for (int i=0;i<NB_BOTS;i++){
+    fprintf(acceuil,"<button onclick=\"document.location.href='formulaire.html';\"> %s </button>",ListeBot[i]);
+    }
+    fprintf(acceuil, "</body></html>");
+    fclose(acceuil);
+}
+
 // Serveur TCP + boucle serveur
 char *PORT_WEB = "8000";
 int s_tcp;
 
 
 s_tcp = initialisationServeurTCP(PORT_WEB);
+
 // Initialisation du serveur 
 if (s_tcp < 0)
 {
