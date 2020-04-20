@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include <libshm.h>
+//#include <libshm.h>
 #include <liblistes.h>
 #include <libnetwork.h>
 #include <libthrd.h>
@@ -30,7 +30,8 @@
 #define PORT_TCP_BOT 4242
 #define TAILLE 20
 #define TAILLE_FILENAME 20
-
+#define TAILLE_MSG_ERREUR 50
+#define TAILLE_MSG_PROTOCOLE 50
 extern liste_bot_t list;
 void ecritureIDshmem(info_bot_t *bot);
 

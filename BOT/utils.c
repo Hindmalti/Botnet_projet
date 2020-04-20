@@ -7,6 +7,7 @@
 // port et IP fixes momentanément 
 
 #define IP_UDP_CLIENT "127.0.0.1" 
+extern info_bot_t *bot;
 /**
  * fct char *create_ID(char *chaine)
  * Fonction de création d'ID unique pour les bots
@@ -57,14 +58,13 @@ char *timeLife(clock_t debut, char *temps)
 
 int remplissageStructure(info_bot_t *structure, clock_t debut)
 {
-    //initialisation de la structure
     char id[SIZE_ID];
     char timeSpent[SIZE_TIME];
     //remplissage
     strcpy(structure->ID, create_ID(id));
     sleep(5);
     strcpy(structure->life_time, timeLife(debut, timeSpent));
-    //strcpy(structure->etat, BOT_INACTIF);
+    structure->etat =  BOT_INACTIF;
     return 0;
 }
 
@@ -72,10 +72,10 @@ int remplissageStructure(info_bot_t *structure, clock_t debut)
  * void impressionStructure(info_bot_t info_bot)
  * //Fonction qui printf les structures 
  */
-void impressionStructure(info_bot_t info_bot)
+void impressionStructure(info_bot_t *info_bot)
 {
     printf("***************La structure ************ \n");
-    printf("L'ID dans la structure est : %s\n", info_bot.ID);
-    printf("Le temps de vie dans la structure est : %s milliseconds\n", info_bot.life_time);
-    printf("L'état dans la structure est : %c\n", info_bot.etat);
+    printf("L'ID dans la structure est : %s\n", info_bot->ID);
+    printf("Le temps de vie dans la structure est : %s milliseconds\n", info_bot->life_time);
+    printf("L'état dans la structure est : %c\n", info_bot->etat);
 }

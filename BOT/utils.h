@@ -28,6 +28,6 @@ typedef struct
 char *create_ID(char *);
 char *timeLife(clock_t, char *);
 int remplissageStructure(info_bot_t *, clock_t);
-void impressionStructure(info_bot_t);
+void impressionStructure(info_bot_t *info);
 
 #endif

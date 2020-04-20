@@ -10,8 +10,12 @@
 #define PORT_TCP_SERVEUR "4242"
 #define TAILLE_STRUCTURE 32
 #define TAILLE_FILENAME 20
-#define BOT_ACTIF 1
-#define BOT_INACTIF 0
+#define TAILLE_MSG_ERREUR 50
+#define TAILLE_MSG_PROTOCOLE 50
+#define BOT_ACTIF '1'
+#define BOT_INACTIF '0'
+#define CHARGE_EXECUTED 1
+#define CHARGE_NON_EXECUTED 0
 #define SIZE_ID 7
 #define SIZE_TIME 5
 #define SIZE_FILE 1000
@@ -37,35 +41,32 @@ typedef struct
 /* Variables  publiques */
 //extern liste_cu_t list_CU;
 extern clock_t debut;
-extern charge_utile_t charge1;
-extern charge_utile_t charge2;
 
-
-
-typedef void (*init_f)(void *);
-
-
+typedef int (*init_f)(void *);
 
 void gestionClientTCP(void *s);
 
 void nouveauClient(int dialogue);
 void TCP(void *arg);
-void partie_tcp();
+void partie_tcp_BOT();
 
 
 void EnvoieBroadcast(void *structure);
 void partie_udp_BOT(clock_t debut);
 
-void recvFile(void *s);
+void recvFile(void *s, char* filename);
 void start_charge(char *filename);
 void print_CU_structure(charge_utile_t *structure);
 void receive_cmd_TCP(void *arg);
 void install_charge(char *file_name);
 void rm_charge(char *filename);
+void send_status(int socket_tcp);
+void send_result(int socket_tcp, int *resultat);
+void quit_connexion();
 
 char *create_ID(char *);
 char *timeLife(clock_t, char *);
 int remplissageStructure(info_bot_t *, clock_t);
-void impressionStructure(info_bot_t);
+void impressionStructure(info_bot_t *info);
 
 #endif

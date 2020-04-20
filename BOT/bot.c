@@ -21,22 +21,20 @@
 #include <liblistes.h>
 #include "bot.h"
 
-info_bot_t *bot;
+//extern info_bot_t *bot;
 liste_cu_t list_CU;
 
 int main()
 {
-    //clock_t debut = clock(); //prise de temps au moment du démarrage stricte du process
-    //srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fonction rand
+    clock_t debut = clock(); //prise de temps au moment du démarrage stricte du process
+    srand(time(NULL));       //Initialisation nécessaire à faire une seule fois pour la fonction rand
 
     // PARTIE envoie UDP en THREAD
-    //partie_udp_BOT(debut);
-
-    bot = (info_bot_t *)malloc(sizeof(info_bot_t));
+    partie_udp_BOT(debut);
 
     // PARTIE SERVEUR TCP en THREAD
     init_listCU(&list_CU);
-    partie_tcp();
+    partie_tcp_BOT();
 
     while (1)
     {

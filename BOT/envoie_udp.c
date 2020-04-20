@@ -22,6 +22,7 @@
  * Fonction wrapper pour sendUDPBroadcast
  * param pointeur vers la structure à envoyer en UDP
 */
+info_bot_t *bot;
 
 void EnvoieBroadcast(void *structure)
 {
@@ -42,12 +43,13 @@ void partie_udp_BOT(clock_t debut)
 {
 
     printf("############ Partie UDP ############\n");
-    info_bot_t info_bot;                    // création d'une structure
-    remplissageStructure(&info_bot, debut); //remplissage avec l'ID et le temps de vie et état
-    impressionStructure(info_bot);
+    bot = (info_bot_t *)malloc(sizeof(info_bot_t));
+     // création d'une structure
+    remplissageStructure(bot, debut); //remplissage avec l'ID et le temps de vie et état
+    impressionStructure(bot);
     // PARTIE UDP
     //Envoie de la structure crée en broadcast UDP
-    if (lanceThread(EnvoieBroadcast, (void *)&info_bot, sizeof(info_bot_t)) < 0)
+    if (lanceThread(EnvoieBroadcast, (void *)&bot, sizeof(info_bot_t)) < 0)
     {
         perror("EnvoieBroadcast.lanceThread");
         exit(-1);

@@ -7,6 +7,6 @@ void gestionClientTCP(void *s);
 
 void nouveauClient(int dialogue);
 void TCP(void *arg);
-void partie_tcp();
+void partie_tcp_BOT();
 
 #endif

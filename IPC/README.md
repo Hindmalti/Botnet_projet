@@ -18,4 +18,3 @@ Faut-il différentes shm ? une spécifique pour les ID, une pour la data , une p
 * Le serveur recupère le signal qu'il peut accéder à la shm
 * Le serveur recupère la data écrite sur la shm
 * Le serveur clean la shm 
-*  
