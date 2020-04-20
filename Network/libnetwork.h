@@ -1,16 +1,14 @@
 #ifndef LIBNET_H
 #define LIBNET_H
 
-#include <stdint.h>
-#include "../BOT/bot.h"
 
-void sendUDPBroadcast(info_bot_t info_bot, int taille_structure, int port);
+void sendUDPBroadcast(void* payload, int taille_payload, int port);
 
 int initialisationServeurTCP(char *service);
 int boucleServeurTCP(int socket, void (*traitement)(int));
 
 int initialisationServeurUDP(char *service);
-int boucleServeurUDP(int s, int (*traitement_udp)(info_bot_t *info_bot, int taille));
+int boucleServeurUDP(int s, int (*traitement_udp)(void *payload, int taille), int taille_payload);
 
 int openTCPClient(char *hote, int port);
 void sendTCP(int socket, char *message, int length_message);

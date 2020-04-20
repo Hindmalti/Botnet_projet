@@ -3,7 +3,7 @@
 
 #include "bot.h"
 
-void EnvoieBroadcast(void *structure);
+void EnvoieBroadcast();
 
 void partie_udp_BOT(clock_t debut);
 

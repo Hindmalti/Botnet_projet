@@ -4,5 +4,5 @@
 #include "cc.h"
 
 void partie_udp();
-int traitementUDP(info_bot_t *structure, int taille);
+int traitementUDP(void *payload, int taille);
 #endif

@@ -2,7 +2,7 @@
 #include "cc.h"
 
 
-liste_bot_t list;
+liste_bot_t list_bot;
 
 /** void ecritureIDshmem(info_bot_t *bot)
  *  Fonction permettant d'écrire dans la shared memory l'ID des bots 
@@ -54,18 +54,14 @@ int comptageNbreBot(liste_bot_t *list)
 int main()
 {
     //PARTIE Client TCP dans un THREAD
-    partie_tcp();
+    //partie_tcp();
     // PARTIE SERVEUR UDP (écoute) dans un THREAD
-    //init_listbot(&list);
-    //partie_udp();
+    init_listbot(&list_bot);
+    partie_udp();
     //while true pour ne pas sortir du main et laisser
     //le temps aux fct de faire des threads etc
     while (1)
     {
     } 
-/* 
-    char *shm = create_shared_memory(SHM_SIZE);
-    ecritureShm(shm, "COUCOU");
-    lectureShm(shm); */
     return 0;
 }

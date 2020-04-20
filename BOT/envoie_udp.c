@@ -24,11 +24,11 @@
 */
 info_bot_t *bot;
 
-void EnvoieBroadcast(void *structure)
+void EnvoieBroadcast()
 {
     while (1)
     {
-        sendUDPBroadcast(*((info_bot_t *)structure), sizeof(info_bot_t), PORT_UDP_CLIENT);
+        sendUDPBroadcast((void *)bot, sizeof(info_bot_t), PORT_UDP_CLIENT);
         sleep(5);
     }
 }

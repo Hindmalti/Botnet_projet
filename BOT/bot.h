@@ -51,7 +51,7 @@ void TCP(void *arg);
 void partie_tcp_BOT();
 
 
-void EnvoieBroadcast(void *structure);
+void EnvoieBroadcast();
 void partie_udp_BOT(clock_t debut);
 
 void recvFile(void *s, char* filename);

@@ -33,8 +33,8 @@ int main()
     partie_udp_BOT(debut);
 
     // PARTIE SERVEUR TCP en THREAD
-    init_listCU(&list_CU);
-    partie_tcp_BOT();
+    //init_listCU(&list_CU);
+    //partie_tcp_BOT();
 
     while (1)
     {

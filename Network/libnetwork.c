@@ -17,13 +17,8 @@
 #include <time.h>
 
 #include "libnetwork.h"
-#include "../Threads/libthrd.h"
-#include "../BOT/bot.h"
 
 #define MAX_TCP_CONNEXION 10
-#define MAX_UDP_MESSAGE 1024
-#define TAILLE_STRUCTURE 32
-
 
 
 //Fonction permettant d'envoyer en broadcast un message
@@ -37,7 +32,7 @@
  * return 
  */
 
-void sendUDPBroadcast(info_bot_t info_bot, int taille_structure, int port)
+void sendUDPBroadcast(void *payload, int taille_payload, int port) 
 {
     int broadcast_enable = 1;
     //Option broadcast ON
@@ -61,12 +56,11 @@ void sendUDPBroadcast(info_bot_t info_bot, int taille_structure, int port)
     broadcast_address.sin_family = AF_INET;
     broadcast_address.sin_port = htons(port);
     broadcast_address.sin_addr.s_addr = INADDR_BROADCAST; //255.255.255.255
-    //remplissageStructure(info_bot,debut);
-    taille_structure = TAILLE_STRUCTURE;
+
 
     //Envoie de la structure depuis les bots
 
-    if (sendto(s, &info_bot, taille_structure, 0, (struct sockaddr *)&broadcast_address,
+    if (sendto(s, payload, taille_payload, 0, (struct sockaddr *)&broadcast_address,
                sizeof(broadcast_address)) < 0)
     {
         perror("sendUDPBroadcast.sendto");
@@ -235,21 +229,22 @@ int initialisationServeurUDP(char *service)
  * param socket d'écoute udp 
  * param traitement_udp Fonction qui va traiter les requêtes UDP entrantes.
  */
-int boucleServeurUDP(int s, int (*traitement_udp)(info_bot_t* , int))
+int boucleServeurUDP(int s, int (*traitement_udp)(void*, int), int taille_payload)
 {
+
     while (1)
     {
         struct sockaddr_storage adresse;
-        info_bot_t *structure = (info_bot_t *)malloc(sizeof(info_bot_t));
         socklen_t taille = sizeof(adresse);
         char addresse_string[20];
 
-        int nboctets = recvfrom(s,structure, sizeof(info_bot_t), 0, (struct sockaddr *)&adresse, &taille);
+        void *payload = malloc(sizeof(taille_payload));
+        int nboctets = recvfrom(s, payload, taille_payload, 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
-        //
+       
         inet_ntop(AF_INET, &(adresse.ss_family), addresse_string, 20);
-        if (traitement_udp(structure, nboctets) < 0)
+        if (traitement_udp(payload, nboctets) < 0)
         {
             perror("serveurMessages.traitement_udp");
             exit(-1);
