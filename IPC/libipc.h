@@ -22,8 +22,16 @@ typedef struct {
 /* Pour la reponse */
 typedef struct {
     long type;
-    int résultat; // retour 0 ou 1  
+    int resultat; // retour 0 ou 1  
 } rep_t;
+
+/**** Prototypes des fonctions pour File de Message ****/
+int creer_file(int msgid);
+int lecture_requete(int msgid, req_t la_requete, char commande, char *charge_name);
+int envoyer_requete(int msgid, req_t la_requete, char commande, char *charge_name);
+int lecture_reponse(int msgid, rep_t la_reponse, int resultat);
+int envoyer_reponse(int msgid, rep_t la_reponse, int resultat);
+int supprimer_file(int msgid);
 
 #endif
 
