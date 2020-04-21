@@ -72,6 +72,25 @@ void lecture_reponse(int msgid, rep_t la_reponse, int resultat){
     }
 
 //fonction pour envoyer une reponse
+void envoyer_reponse(int msgid, rep_t la_reponse, int resultat){
+    /* On récupère la file */
+    if((msgid = msgget((key_t)CLE_FDM, 0)) == -1) {
+        perror("Erreur survenue pour récupération de la file\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    /* remplissage de la reponse */  
+    la_reponse.type = TYPE_REP;
+    la_reponse.resultat = resultat;
+
+    /* Envoi de la reponse */
+    if(msgsnd(msgid, &la_reponse, sizeof(rep_t) - sizeof(long), 0) == -1){
+        perror("Erreur d'envoi de reponse");
+        exit(EXIT_FAILURE);
+    }
+    printf("la reponse a bien été envoyée");
+    
+}
 
 //fonction pour créer la file ?
 
