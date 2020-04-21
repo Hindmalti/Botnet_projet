@@ -8,6 +8,15 @@
  
 #include "libipc.h"
 
+//fonction pour créer la file
+int creer_file(int msgid){
+    if((msgid=msgget((key_t)CLE_FDM, IPC_CREAT | 0666)) == -1){
+        perror("erreur création file");
+        exit(EXIT_FAILURE);
+    }
+    return EXIT_SUCCESS;
+}
+
 //Fonction pour lire une requete
 int lecture_requete(int msgid, req_t la_requete, char commande, char *charge_name){
      /* On crée la file si elle n'existe pas */
@@ -96,8 +105,6 @@ int envoyer_reponse(int msgid, rep_t la_reponse, int resultat){
     return EXIT_SUCCESS;
     
 }
-
-//fonction pour créer la file ?
 
 //fonction pour détruire la file de message
 int supprimer_file(int msgid){
