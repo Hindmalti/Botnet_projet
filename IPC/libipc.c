@@ -12,12 +12,14 @@
 int lecture_requete(int msgid, req_t la_requete, char commande, char *charge_name){
      /* On crée la file si elle n'existe pas */
     if((msgid = msgget((key_t)CLE_FDM, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL)) == -1) {
-        if(errno == EEXIST)
+        if(errno == EEXIST){
         fprintf(stderr, "Erreur ! la file (cle=%d) existe deja\n", CLE_FDM);
-        else
+        }
+        else{
         perror("Erreur de creation\n");
-        exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);}
     }
+
     
     /* Attente d'une requete */
     printf("attend une requete...\n");
