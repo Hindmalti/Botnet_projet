@@ -9,7 +9,7 @@
 #include "libipc.h"
 
 //Fonction pour lire une requete
-void lecture_requete(int msgid, req_t la_requete, char commande, char *charge_name){
+int lecture_requete(int msgid, req_t la_requete, char commande, char *charge_name){
      /* On crée la file si elle n'existe pas */
     if((msgid = msgget((key_t)CLE_FDM, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL)) == -1) {
         if(errno == EEXIST)
@@ -29,10 +29,11 @@ void lecture_requete(int msgid, req_t la_requete, char commande, char *charge_na
     commande = la_requete.commande;
     charge_name = la_requete.charge_name;
     printf("la requete recue est la commande %c et de nom de charge %s\n", commande, charge_name);
-    }
+    return EXIT_SUCCESS;
+}
 
 //fonction pour envoyer une requete
-void envoyer_requete(int msgid, req_t la_requete, char commande, char *charge_name){
+int envoyer_requete(int msgid, req_t la_requete, char commande, char *charge_name){
     /* On récupère la file */
     if((msgid = msgget((key_t)CLE_FDM, 0)) == -1) {
         perror("Erreur survenue pour récupération de la file\n");
@@ -50,10 +51,10 @@ void envoyer_requete(int msgid, req_t la_requete, char commande, char *charge_na
         exit(EXIT_FAILURE);
     }
     printf("la requete a bien été envoyée");
-    
+    return EXIT_SUCCESS;
 }
 //fonction pour lire une reponse
-void lecture_reponse(int msgid, rep_t la_reponse, int resultat){
+int lecture_reponse(int msgid, rep_t la_reponse, int resultat){
      /* On récupère la file */
     if((msgid = msgget((key_t)CLE_FDM, 0)) == -1) {
         perror("Erreur survenue pour récupération de la file\n");
@@ -69,10 +70,11 @@ void lecture_reponse(int msgid, rep_t la_reponse, int resultat){
     //récupération des valeurs
     resultat = la_reponse.resultat;
     printf("reponse bien recue : %d\n", resultat);
-    }
+    return EXIT_SUCCESS;
+}
 
 //fonction pour envoyer une reponse
-void envoyer_reponse(int msgid, rep_t la_reponse, int resultat){
+int envoyer_reponse(int msgid, rep_t la_reponse, int resultat){
     /* On récupère la file */
     if((msgid = msgget((key_t)CLE_FDM, 0)) == -1) {
         perror("Erreur survenue pour récupération de la file\n");
@@ -89,6 +91,7 @@ void envoyer_reponse(int msgid, rep_t la_reponse, int resultat){
         exit(EXIT_FAILURE);
     }
     printf("la reponse a bien été envoyée");
+    return EXIT_SUCCESS;
     
 }
 
