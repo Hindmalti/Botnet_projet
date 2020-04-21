@@ -10,7 +10,7 @@ Ensuite,
 
 Coté navigateur web :
 - ouvrir votre navigateur
-- mettre l'url : localhost:8000/formulaire.html et valider
+- mettre l'url : localhost:8000/acceuil.html et valider
 - Normalement le formulaire doit s'afficher. Là vous choisissez un fichier et vous envoyez
 
 Enfin :
