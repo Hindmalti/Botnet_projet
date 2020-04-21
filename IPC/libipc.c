@@ -5,7 +5,9 @@
 #include <sys/msg.h>    /* Pour msgget, msgsnd, msgrcv */
 #include <errno.h>      /* Pour errno */
 #include <sys/stat.h>   /* Pour S_IRUSR, S_IWUSR */
- 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "libipc.h"
 
 //fonction pour créer la file
@@ -123,3 +125,33 @@ int supprimer_file(int msgid){
 
     return EXIT_SUCCESS;
 }
+
+//test 
+// Ça fonctionne parfaitement
+
+/*
+int main(){
+    req_t requete;
+    //rep_t reponse;
+    int msgid = 0;
+    char commande = 0;
+    char *charge = NULL;
+
+
+    int pid = fork();
+
+    if(pid==0)
+    {
+        printf("nous sommes dans le fils\n");
+        creer_file(msgid);
+        envoyer_requete(msgid, requete, '2', "balise.c");
+    }
+
+    else{
+        printf("nous sommes dans le pere\n");
+        lecture_requete(msgid, requete, commande, charge);
+        supprimer_file(msgid);
+    }
+    return 0;
+
+}*/
