@@ -28,11 +28,30 @@ void lecture_requete(int msgid, req_t la_requete, char commande, char *charge_na
     //récupération des valeurs
     commande = la_requete.commande;
     charge_name = la_requete.charge_name;
-    printf("la requete recue (%c, %s)\n", commande, charge_name);
+    printf("la requete recue est la commande %c et de nom de charge %s\n", commande, charge_name);
     }
 
 //fonction pour envoyer une requete
+void envoyer_requete(int msgid, req_t la_requete, char commande, char *charge_name){
+    /* On récupère la file */
+    if((msgid = msgget((key_t)CLE_FDM, 0)) == -1) {
+        perror("Erreur survenue pour récupération de la file\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    /* remplissage la requête */  
+    la_requete.type = TYPE_REQ;
+    la_requete.commande = commande;
+    la_requete.charge_name = charge_name;
 
+    /* Envoi de la requete */
+    if(msgsnd(msgid, &la_requete, sizeof(req_t) - sizeof(long), 0) == -1){
+        perror("Erreur d'envoi de requete");
+        exit(EXIT_FAILURE);
+    }
+    printf("la requete a bien été envoyée");
+    
+}
 //fonction pour lire une reponse
 
 //fonction pour envoyer une reponse
