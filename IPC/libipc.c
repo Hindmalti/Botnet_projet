@@ -53,6 +53,23 @@ void envoyer_requete(int msgid, req_t la_requete, char commande, char *charge_na
     
 }
 //fonction pour lire une reponse
+void lecture_reponse(int msgid, rep_t la_reponse, int resultat){
+     /* On récupère la file */
+    if((msgid = msgget((key_t)CLE_FDM, 0)) == -1) {
+        perror("Erreur survenue pour récupération de la file\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    /* Attente d'une reponse */
+    printf("attend une reponse...\n");
+    if(msgrcv(msgid, &la_reponse, sizeof(rep_t) - sizeof(long), TYPE_REP, 0) == -1) {
+        perror("Erreur de reception\n");
+        exit(EXIT_FAILURE);
+    }
+    //récupération des valeurs
+    resultat = la_reponse.resultat;
+    printf("reponse bien recue : %d\n", resultat);
+    }
 
 //fonction pour envoyer une reponse
 
