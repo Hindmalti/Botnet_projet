@@ -95,3 +95,19 @@ void envoyer_reponse(int msgid, rep_t la_reponse, int resultat){
 //fonction pour créer la file ?
 
 //fonction pour détruire la file de message
+int supprimer_file(int msgid){
+    /* on récupère la file */
+    if((msgid = msgget((key_t)CLE_FDM, 0)) == -1) {
+        perror("Erreur survenue pour récupération de la file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* On supprime la file récupérée */
+    if(msgctl(msgid, IPC_RMID, 0) == -1){
+        perror("Erreur de suppression de file");
+        exit(EXIT_FAILURE);
+    }
+    printf("la file a été supprimée\n");
+
+    return EXIT_SUCCESS;
+}
