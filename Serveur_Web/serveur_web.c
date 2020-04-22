@@ -36,10 +36,38 @@ char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
 
 */
 
-char* options_bot(char* bot){
-    char* option;
-    sprintf(option,"<option value=\"%s\">%s</option>", bot, bot);
-    return option;
+void page_acceuil(int nb_bots, char* ListeBot[])
+{
+    FILE *acceuil = fopen("www/acceuil.html", "w");
+    if (acceuil != NULL)
+    {
+        //fprintf(dialogue,"HTTP/1.1 200 OK\n");
+        //fprintf(dialogue,"Content-Type: text/html;\n\n");
+        fprintf(acceuil, "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"utf-8\"/><title>upload</title></head>");
+        fprintf(acceuil,"<body><h1 color:rgb(250,128,114)> BOTS </h1><h3>Groupe: Hind MALTI & Loris AHOUASSOU</h3>");
+        fprintf(acceuil,"<div><form action=\"acceuil.html\" method=\"post\" enctype=\"application/x-www-form-urlencoded\">Choisissez un Bot : <select name=\"Bot\">");
+        for (int i = 0; i < nb_bots; i++)
+        {
+            fprintf(acceuil, "<option value=\"%s\">%s</option>", ListeBot[i], ListeBot[i]);
+        }
+        fprintf(acceuil, "</select><input type=\"hidden\" name=\"Charge\" value=\"\" /><input type=\"submit\" name=\"Commande\" value=\"Statut\" /><input type=\"submit\" name=\"Commande\" value=\"Quitter\" /></form></div>");
+        fprintf(acceuil, "<br/><br/>");
+        fprintf(acceuil, "<div><form action=\"acceuil.html\" method=\"post\" enctype=\"application/x-www-form-urlencoded\">Choisissez un Bot :<select name=\"Bot\">");
+        for (int i = 0; i < nb_bots; i++)
+        {
+            fprintf(acceuil, "<option value=\"%s\">%s</option>", ListeBot[i], ListeBot[i]);
+        }
+        fprintf(acceuil, "</select><br/>Entrez le nom de votre charge:<input type=\"text\" name=\"Charge\" value=\"\" /><input type=\"submit\" name=\"Commande\" value=\"Executer\" /><input type=\"submit\" name=\"Commande\" value=\"Effacer\" /><input type=\"submit\" name=\"Commande\" value=\"Resultat\" /></form></div>");
+        fprintf(acceuil, "<br/><br/>");
+        fprintf(acceuil, "<div><form action=\"acceuil.html\" method=\"post\" enctype=\"multipart/form-data\">Choisissez un Bot :<select name=\"Bot\">");
+        for (int i = 0; i < nb_bots; i++)
+        {
+            fprintf(acceuil, "<option value=\"%s\">%s</option>", ListeBot[i], ListeBot[i]);
+        }
+        fprintf(acceuil, "</select><br />Quelle Charge souhaitez-vous envoyer ? <input type=\"file\" name=\"MyFile\" /><input type=\"submit\" value=\"Envoyer\" /></form></div>");
+        fprintf(acceuil, "</body></html>");
+    }
+    fclose(acceuil);
 }
 
 void gestionClientWeb(void *s)
@@ -168,7 +196,7 @@ void nouveauClientWeb(int dialogue)
 int main(void)
 {
 
-    FILE *acceuil = fopen("www/acceuil.html", "w");
+    /*FILE *acceuil = fopen("www/acceuil.html", "w");
     if (acceuil != NULL)
     {
         //fprintf(dialogue,"HTTP/1.1 200 OK\n");
@@ -182,7 +210,8 @@ int main(void)
         }
         fprintf(acceuil, "</body></html>");
         fclose(acceuil);
-    }
+    }*/
+    page_acceuil(3, ListeBot);
 
     // Serveur TCP + boucle serveur
     char *PORT_WEB = "8000";
