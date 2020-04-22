@@ -122,12 +122,6 @@ void print_listeBot(liste_bot_t liste)
  */
 int rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge)
 {
-    if(liste == NULL)
-    {
-        perror("La liste est inexistante\n");
-        *charge = NULL;
-        return 1;
-    }
     node_cu_t *current = *liste;
     while (current != NULL)
     {
@@ -145,7 +139,7 @@ int rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge)
     }
     perror("La charche utile n'est pas présente dans la liste\n");
     *charge = NULL;
-    return 0;
+    return 1;
 }
 
 /** void rechercheBOT(char *id, liste_bot_t *bot)
@@ -153,23 +147,19 @@ int rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge)
  *  param l'ID du bot
  *  param la liste des bots
  */
-info_bot_t *rechercheBOT(char *id, liste_bot_t *bot)
-{
-    node_bot_t *current = *bot;
-    while (current != NULL)
-    {
-        if (strcmp(current->bot->ID, id) == 0)
-        {
+void rechercheBOT(char *id, liste_bot_t *list, info_bot_t **bot) {
+    node_bot_t *current = *list;
+    while (current != NULL) {
+        if (strcmp(current->bot->ID, id) == 0) {
             printf("The file with the ID %s is here \n", id);
             print_BOT_structure(current->bot);
-            return(current->bot);
-        }
-        else
-        {
+            *bot = current->bot;
+            return;
+        } else {
             current = (liste_bot_t)current->next;
         }
     }
-    return NULL;
+    *bot = NULL;
     printf("Error : this Bot doesn't exist\n");
 }
 /** void supp_tete(liste_cu_t *liste)

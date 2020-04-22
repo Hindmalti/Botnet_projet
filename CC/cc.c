@@ -1,21 +1,7 @@
 
 #include "cc.h"
 
-
 liste_bot_t list_bot;
-
-/** void ecritureIDshmem(info_bot_t *bot)
- *  Fonction permettant d'écrire dans la shared memory l'ID des bots 
- *  afin que le serveur web puisse savoir quels sont les bots présents
- *  param pointeur vers le bot
- */
-// void ecritureIDshmem(info_bot_t *bot)
-// {
-
-//     char *shmem = (char *)create_shared_memory(sizeof(char));
-//     //ecritureShm(shmem, bot->ID);
-//     printf("La shared memory contient : %s\n", shmem);
-// }
 
 /**
  * Fonction permettant de parcourir la liste des bots disponibles et 
@@ -23,17 +9,36 @@ liste_bot_t list_bot;
  * param Pointeur vers la liste
  * return nombre 
  */
-int comptageNbreBot(liste_bot_t *list)
+int comptageNbreBot(liste_bot_t list)
 {
     printf("[ComptageNmbreBot]Start\n");
     int nbre = 0;
-
-    while (list != NULL)
+    node_bot_t *current = list;
+    while (current != NULL)
     {
         nbre++;
+        current = (liste_bot_t)current->next;
     }
     printf("Le nombre de Bots présents sur la liste est : %d\n", nbre);
     return nbre;
+}
+
+int llist_bot_to_array(liste_bot_t list, info_bot_t *returned_array) 
+{
+    printf("creation[creation_table_bot]Start\n");
+    int i = 0;
+    // TO DO : réfléchir à où free ce malloc chaque 10 sc ?
+    //info_bot_t *tmp = (info_bot_t *)malloc(nbre * sizeof(info_bot_t));
+    node_bot_t *current = list;
+    while(current != NULL) {
+        strcpy(returned_array[i].ID, current->bot->ID);
+        returned_array[i].etat = current->bot->etat;
+        strcpy(returned_array[i].life_time, current->bot->life_time);
+        i++;
+        current = (liste_bot_t)current->next;
+    }
+    
+    return 0;
 }
 
 /** void ecriturePIDshm(void *shm)
@@ -50,7 +55,6 @@ int comptageNbreBot(liste_bot_t *list)
 //     lecture_ecriture_shm(&shm, char_pid);
 // }
 
-
 int main()
 {
     //PARTIE Client TCP dans un THREAD
@@ -62,6 +66,6 @@ int main()
     //le temps aux fct de faire des threads etc
     while (1)
     {
-    } 
+    }
     return 0;
 }

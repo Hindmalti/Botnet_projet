@@ -17,9 +17,9 @@
 #include <time.h>
 
 #include "libnetwork.h"
+#include "libthrd.h"
 
 #define MAX_TCP_CONNEXION 10
-
 
 //Fonction permettant d'envoyer en broadcast un message
 /**
@@ -32,7 +32,7 @@
  * return 
  */
 
-void sendUDPBroadcast(void *payload, int taille_payload, int port) 
+void sendUDPBroadcast(void *payload, int taille_payload, int port)
 {
     int broadcast_enable = 1;
     //Option broadcast ON
@@ -56,7 +56,6 @@ void sendUDPBroadcast(void *payload, int taille_payload, int port)
     broadcast_address.sin_family = AF_INET;
     broadcast_address.sin_port = htons(port);
     broadcast_address.sin_addr.s_addr = INADDR_BROADCAST; //255.255.255.255
-
 
     //Envoie de la structure depuis les bots
 
@@ -136,7 +135,7 @@ int initialisationServeurTCP(char *service)
     statut = listen(s, MAX_TCP_CONNEXION);
     if (statut < 0)
         return -1;
-        
+
     return s;
 }
 
@@ -229,7 +228,7 @@ int initialisationServeurUDP(char *service)
  * param socket d'écoute udp 
  * param traitement_udp Fonction qui va traiter les requêtes UDP entrantes.
  */
-int boucleServeurUDP(int s, int (*traitement_udp)(void*, int), int taille_payload)
+int boucleServeurUDP(int s, int (*traitement_udp)(struct sockaddr_in*, void *, int), int taille_payload)
 {
 
     while (1)
@@ -242,9 +241,11 @@ int boucleServeurUDP(int s, int (*traitement_udp)(void*, int), int taille_payloa
         int nboctets = recvfrom(s, payload, taille_payload, 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
-       
+
         inet_ntop(AF_INET, &(adresse.ss_family), addresse_string, 20);
-        if (traitement_udp(payload, nboctets) < 0)
+        //Amélioration mettre le traitement udp sur un thread ? créer une struct contenant payload et 
+        // nboctets et lancer dans un thread , penser aux mutex 
+        if (traitement_udp((struct sockaddr_in *) &adresse, payload, nboctets) < 0)
         {
             perror("serveurMessages.traitement_udp");
             exit(-1);
@@ -278,7 +279,7 @@ int openTCPClient(char *hote, int port)
     return s;
 }
 
-// Envoie un message TCP sur une connexion active
+// Envoie un messag//e TCP sur une connexion active
 void sendTCP(int socket, char *message, int length_message)
 {
     if (length_message <= 0)

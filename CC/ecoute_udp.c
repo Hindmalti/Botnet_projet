@@ -7,18 +7,32 @@ extern liste_bot_t list_bot;
  * param structure du bot qu'elle a reçu
  * param taille de la reception (argument utile pour la librairie Network)
  */
-int traitementUDP(void *payload, int taille)
+int traitementUDP(struct sockaddr_in *addr, void *payload, int taille)
 {
     info_bot_t *bot = (info_bot_t *)payload;
-    printf("[traitementUDP]Affichage bot recu");
-    print_BOT_structure(bot);
+    printf("[traitementUDP]Affichage bot recu\n");
+    //print_BOT_structure(bot);
     (void)taille;
-    //TO DO : Verifier qu'on n'a pas deja le bot avant de l'ajouter
-    ajout_tete_bot(&list_bot, bot);
+    // Verifier qu'on n'a pas deja le bot avant de l'ajouter
+    info_bot_t *tmp;
+    rechercheBOT(bot->ID, &list_bot, &tmp);
+    if (tmp == NULL)
+    {
+        // On renseigne le bot
+        ajout_tete_bot(&list_bot, bot);
+    }
     print_listeBot(list_bot);
-    // On compte le nbre de bots disponibles 
-    // On écrit le nbre de bots dispo sur la shm pour que le serveur les récupère
-    //écrit les ID des bots disponibles sur la shmemory
+
+    // On compte le nbre de bots disponibles
+    int nbre_bot = comptageNbreBot(list_bot);
+    // on crée une liste
+    info_bot_t *array_bots = malloc(nbre_bot * sizeof(info_bot_t));
+    llist_bot_to_array(list_bot, array_bots);
+    for (int i = 0; i < nbre_bot; i++) {
+        printf("------------------------------------------\n");
+        printf("\nID : %s \nlife_time: %s \netat: %c\n\n", array_bots[i].ID, array_bots[i].life_time, array_bots[i].etat);
+        printf("------------------------------------------\n");
+    }
     //ecritureIDshmem(structure);
     return 0;
 }

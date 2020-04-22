@@ -33,7 +33,8 @@
 #define TAILLE_MSG_ERREUR 50
 #define TAILLE_MSG_PROTOCOLE 50
 extern liste_bot_t list;
-void ecritureIDshmem(info_bot_t *bot);
-
+//void ecritureIDshmem(info_bot_t *bot);
+int llist_bot_to_array(liste_bot_t list, info_bot_t *returned_array);
+int comptageNbreBot(liste_bot_t list);
 
 #endif
