@@ -50,7 +50,7 @@ void page_acceuil(int nb_bots, char* ListeBot[])
         {
             fprintf(acceuil, "<option value=\"%s\">%s</option>", ListeBot[i], ListeBot[i]);
         }
-        fprintf(acceuil, "</select><input type=\"hidden\" name=\"Charge\" value=\"\" /><input type=\"submit\" name=\"Commande\" value=\"Statut\" /><input type=\"submit\" name=\"Commande\" value=\"Quitter\" /></form></div>");
+        fprintf(acceuil, "</select><input type=\"hidden\" name=\"Charge\" value=\"NONE\" /><input type=\"submit\" name=\"Commande\" value=\"Statut\" /><input type=\"submit\" name=\"Commande\" value=\"Quitter\" /></form></div>");
         fprintf(acceuil, "<br/><br/>");
         fprintf(acceuil, "<div><form action=\"acceuil.html\" method=\"post\" enctype=\"application/x-www-form-urlencoded\">Choisissez un Bot :<select name=\"Bot\">");
         for (int i = 0; i < nb_bots; i++)
@@ -79,6 +79,10 @@ void gestionClientWeb(void *s)
     char proto[MAX_BUFFER];
     char path[MAX_BUFFER];
     char type[MAX_BUFFER];
+
+    char* Bot;
+    char* Charge;
+    char* Commande;
 
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
@@ -131,8 +135,50 @@ void gestionClientWeb(void *s)
         }
         donnees[content_length] = '\0';
     }
-    printf(" CONTENU DU FICHIER = %s\n", donnees);
+    printf(" CONTENU DU FICHIER =%s\n", donnees);
     printf("fin de mon contenu\n");
+
+    //Différenciation du type de requete
+    if(donnees[0]=='B'){
+        char *temp;
+        int i = 0;
+        temp = strtok(donnees, "&");
+        while(temp != NULL && i<3){
+            if(i==0){
+                Bot=temp;
+                temp=strtok(NULL, "&");
+                i++;
+            }
+            if(i==1){
+                Charge=temp;
+                temp=strtok(NULL, "&");
+                i++;
+            }
+            if(i==2){
+                Commande=temp;
+                temp=strtok(NULL, "&");
+                i++;
+            }
+            
+        }
+        
+        if(sscanf(Bot, "Bot=%s", Bot)!=1)
+        {
+            printf("Erreur recupération commande\n");
+        }
+        if(sscanf(Charge, "Charge=%s", Charge)!=1)
+        {
+            printf("Erreur recupération commande\n");
+        }
+        if(sscanf(Commande, "Commande=%s", Commande)!=1)
+        {
+            printf("Erreur recupération commande\n");
+        }
+        printf("Le Bot est %s, la charge est %s, et la commande est %s\n", Bot, Charge, Commande);
+        
+
+    }
+    else printf("Il s'agit d'un fichier récupéré ici\n");
 
     //printf("%ld", fread(buffer,strlen(buffer)+1, 1, dialogue));
     // 1) faire un malloc de la longueur de ma page (content-length) qui doit etre
