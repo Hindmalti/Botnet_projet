@@ -15,6 +15,8 @@ int boucleServeurUDP(int s, int (*traitement_udp)(struct sockaddr_storage, void 
 int openTCPClient(char *hote, int port);
 void sendTCP(int socket, char *message, int length_message);
 int receiveTCP(int socket, char *message, int max_length);
+static int socketVersNomTCP(int s, char *nom);
+void socketVersClient(int s,char **hote,char **service);
 
 
 #endif

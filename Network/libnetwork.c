@@ -21,8 +21,8 @@
 
 #define MAX_TCP_CONNEXION 10
 
-//Fonction permettant d'envoyer en broadcast un message
-/**
+          //Fonction permettant d'envoyer en broadcast un message
+          /**
  * fct void sendUDPBroadcast(unsigned char *message, int taille_message, int port)
  * Fonction d'envoi de msg en UDP en Broadcast.
  *
@@ -66,6 +66,45 @@ void sendUDPBroadcast(void *payload, int taille_payload, int port)
         exit(-1);
     }
     close(s);
+}
+
+/**
+ * fct int initialisationServeur(char *service)
+ * Fonction d'initialisation d'un serveur TCP.
+ *
+ * param service Port sur lequel doit écouter le serveur TCP.
+ *
+ * return Descripteur de fichier de la socket si aucune erreur, -1 sinon.
+ */
+
+void socketVersClient(int s, char **hote, char **service)
+{
+    struct sockaddr_storage adresse;
+    socklen_t taille = sizeof adresse;
+    int statut;
+
+    /* Recupere l'adresse de la socket distante */
+    statut = getpeername(s, (struct sockaddr *)&adresse, &taille);
+    if (statut < 0)
+    {
+        perror("socketVersNom.getpeername");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Recupere le nom de la machine */
+    *hote = malloc(MAX_TAMPON);
+    if (*hote == NULL)
+    {
+        perror("socketVersClient.malloc");
+        exit(EXIT_FAILURE);
+    }
+    *service = malloc(MAX_TAMPON);
+    if (*service == NULL)
+    {
+        perror("socketVersClient.malloc");
+        exit(EXIT_FAILURE);
+    }
+    getnameinfo((struct sockaddr *)&adresse, sizeof adresse, *hote, MAX_TAMPON, *service, MAX_TAMPON, 0);
 }
 
 /**
@@ -186,7 +225,7 @@ int initialisationServeurUDP(char *service)
 
     struct addrinfo *p;
     for (p = origine, resultat = origine; p != NULL; p = p->ai_next)
-        if(p->ai_family == AF_INET)
+        if (p->ai_family == AF_INET)
         //if (p->ai_family == AF_INET6)
         {
             resultat = p;
@@ -240,17 +279,26 @@ int boucleServeurUDP(int s, int (*traitement_udp)(struct sockaddr_storage, void 
         int nboctets = recvfrom(s, payload, taille_payload, 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
-        //Amélioration mettre le traitement udp sur un thread ? créer une struct contenant payload et 
-        // nboctets et lancer dans un thread , penser aux mutex 
+        //Amélioration mettre le traitement udp sur un thread ? créer une struct contenant payload et
+        // nboctets et lancer dans un thread , penser aux mutex
         if (traitement_udp(adresse, payload, nboctets) < 0)
         {
             perror("serveurMessages.traitement_udp");
             exit(-1);
         }
     }
-    return 0;
-}
 
+    //printf("error getnameinfo");
+    /*break;
+    default:
+    printf("oups\n");
+    break;
+  }*/
+    if (traitement(message, hote) < 0)
+        break; //on renvoie juste le message et l'adresse
+}
+return 0;
+}
 
 // Envoie un messag//e TCP sur une connexion active
 void sendTCP(int socket, char *message, int length_message)
