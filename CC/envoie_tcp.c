@@ -1,51 +1,50 @@
-#include "envoie_tcp.h"
-
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <libthrd.h>
+#include "cc.h"
 
 /**
- * void init_socket()
+ * void init_socket_bot(bot_t *bot)
  * Fonction qui crée une socket, lui met des options TCP, la connecte à un serveur TCP, 
  * une fois la connexion faite elle lance la fct wrapper qui lance un thread avec l'écriture sur la socket
- * 
- * TO DO : remplacer IP_BOT et PORT_BOT par des valeurs dynamiques qu'on récupère de la partie UDP
+ * param un structure bot_t
  */
-void init_socket(void *arg)
+int init_socket_bot(bot_t *bot)
 {
-    (void)arg;
-    // Structure addresse du serveur
-    struct sockaddr_in servaddr;
-    int socket_tcp;
-    socket_tcp = socket(AF_INET, SOCK_STREAM, 0);
-
-    /*   
-    Création de la socket :
-    s = file descriptor de la socket, 
-    AF_INET (socket internet), SOCK_DGRAM (datagramme, UDP, sans connexion)
-     */
+    struct sockaddr_in *bot_addr = (struct sockaddr_in *)&(bot->addr);
+    bot_addr->sin_port = htons(PORT_TCP_BOT);
+    int socket_tcp = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_tcp < 0)
     {
         //Test de la valeur de retour de la socket
         perror("sendUDPBroadcast.socket");
         exit(-1);
     }
-
-    servaddr.sin_family = AF_INET;
-    //On met l'addresse du serveur avec qui on veut communiquer
-    servaddr.sin_addr.s_addr = inet_addr(IP_BOT);
-    //Pareil pour le port
-    servaddr.sin_port = htons(PORT_TCP_BOT);
-
-    //connexion avec le serveur TCP ( qui se trouve sur le bot)
-    if (connect(socket_tcp, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+    if (connect(socket_tcp, (struct sockaddr *)&bot->addr, sizeof(bot->addr)) < 0)
     {
         printf("connection with the server failed...\n");
         exit(0);
     }
-    else
+    return socket_tcp;
+}
+
+/**
+ * Fonction wrapper à mettre dans un lanceThread, permettant de receptionner les ordres données par le 
+ * serveur Web
+ * 
+ */
+void reception_serveur_web(void *arg)
+{
+    sleep(3);
+    (void)arg;
+    while (1)
     {
-        printf("connected to the server..\n");
-        send_commad_tcp((void *)&socket_tcp);
+        //On récupère du serveur web les ordres à envoyer aux bots
+        getOrdreFromShm();
+        sleep(5);
     }
-    return;
 }
 
 /**
@@ -55,7 +54,10 @@ void init_socket(void *arg)
  */
 void partie_tcp()
 {
-
+    sleep(10);
     printf("############ Partie TCP ############\n");
-    lanceThread(init_socket, (void *)NULL, 0);
+    //Reception des ordres du serveur web
+    lanceThread(reception_serveur_web, (void *)NULL, 0);
+    //Reception des ordres de la CLI admin
+    //lanceThread(, (void *)NULL, 0);
 }

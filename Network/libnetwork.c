@@ -186,7 +186,8 @@ int initialisationServeurUDP(char *service)
 
     struct addrinfo *p;
     for (p = origine, resultat = origine; p != NULL; p = p->ai_next)
-        if (p->ai_family == AF_INET6)
+        if(p->ai_family == AF_INET)
+        //if (p->ai_family == AF_INET6)
         {
             resultat = p;
             break;
@@ -228,24 +229,20 @@ int initialisationServeurUDP(char *service)
  * param socket d'écoute udp 
  * param traitement_udp Fonction qui va traiter les requêtes UDP entrantes.
  */
-int boucleServeurUDP(int s, int (*traitement_udp)(struct sockaddr_in*, void *, int), int taille_payload)
+int boucleServeurUDP(int s, int (*traitement_udp)(struct sockaddr_storage, void *, int), int taille_payload)
 {
 
     while (1)
     {
         struct sockaddr_storage adresse;
         socklen_t taille = sizeof(adresse);
-        char addresse_string[20];
-
         void *payload = malloc(sizeof(taille_payload));
         int nboctets = recvfrom(s, payload, taille_payload, 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
-
-        inet_ntop(AF_INET, &(adresse.ss_family), addresse_string, 20);
         //Amélioration mettre le traitement udp sur un thread ? créer une struct contenant payload et 
         // nboctets et lancer dans un thread , penser aux mutex 
-        if (traitement_udp((struct sockaddr_in *) &adresse, payload, nboctets) < 0)
+        if (traitement_udp(adresse, payload, nboctets) < 0)
         {
             perror("serveurMessages.traitement_udp");
             exit(-1);
@@ -254,30 +251,6 @@ int boucleServeurUDP(int s, int (*traitement_udp)(struct sockaddr_in*, void *, i
     return 0;
 }
 
-// Initialise un client TCP, et renvoie la socket de connexion
-int openTCPClient(char *hote, int port)
-{
-    int s;
-    struct sockaddr_in adresse;
-    socklen_t taille = sizeof adresse;
-
-    // creation socket
-    s = socket(PF_INET, SOCK_STREAM, 0);
-    if (s < 0)
-    {
-        perror("connexionServeur.socket");
-        exit(-1);
-    }
-
-    // connexion
-    memset(&adresse, 0, sizeof(adresse));
-    adresse.sin_family = AF_INET;
-    adresse.sin_port = htons(port);
-    adresse.sin_addr.s_addr = inet_addr(hote);
-    if (connect(s, (struct sockaddr *)&adresse, taille) < 0)
-        return -1;
-    return s;
-}
 
 // Envoie un messag//e TCP sur une connexion active
 void sendTCP(int socket, char *message, int length_message)

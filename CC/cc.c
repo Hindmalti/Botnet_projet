@@ -1,9 +1,12 @@
-
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "cc.h"
 
 liste_bot_t list_bot;
 
-/**
+
+/** int comptageNbreBot(liste_bot_t list)
  * Fonction permettant de parcourir la liste des bots disponibles et 
  * nous renvoie le nombre de bots => elle servira au serveur Web pour qu'il crée des boutons ID
  * param Pointeur vers la liste
@@ -22,6 +25,13 @@ int comptageNbreBot(liste_bot_t list)
     printf("Le nombre de Bots présents sur la liste est : %d\n", nbre);
     return nbre;
 }
+/** int llist_bot_to_array(liste_bot_t list, info_bot_t *returned_array) 
+ *  Fonction permettant de créer un tableau de structures info_bot afin de l'écrire sur la shm
+ * (vu que l'on ne peut pas écrire une liste chainée sur la shm)
+ * param la liste depuis laquelle elle convertit
+ * param le tableau à remplir
+ * 
+ */
 
 int llist_bot_to_array(liste_bot_t list, info_bot_t *returned_array) 
 {
@@ -31,9 +41,9 @@ int llist_bot_to_array(liste_bot_t list, info_bot_t *returned_array)
     //info_bot_t *tmp = (info_bot_t *)malloc(nbre * sizeof(info_bot_t));
     node_bot_t *current = list;
     while(current != NULL) {
-        strcpy(returned_array[i].ID, current->bot->ID);
-        returned_array[i].etat = current->bot->etat;
-        strcpy(returned_array[i].life_time, current->bot->life_time);
+        strcpy(returned_array[i].ID, current->bot->info->ID);
+        returned_array[i].etat = current->bot->info->etat;
+        strcpy(returned_array[i].life_time, current->bot->info->life_time);
         i++;
         current = (liste_bot_t)current->next;
     }
@@ -41,27 +51,15 @@ int llist_bot_to_array(liste_bot_t list, info_bot_t *returned_array)
     return 0;
 }
 
-/** void ecriturePIDshm(void *shm)
- *  Fonction permettant de récupérer le pid du process et l'ecrire sur une shm
- *  param adresse d'une shm
- */
-// void ecriturePIDshm(void *shm)
-// {
-//     printf("[ecriturePIDshm]Start\n");
-//     const size_t max_pid_len = 12; // Could be system dependent.
-//     int pid = getpid();
-//     char *char_pid = malloc(max_pid_len + 1);
-//     snprintf(char_pid, max_pid_len, "%d", pid);
-//     lecture_ecriture_shm(&shm, char_pid);
-// }
 
 int main()
 {
-    //PARTIE Client TCP dans un THREAD
-    //partie_tcp();
+    
     // PARTIE SERVEUR UDP (écoute) dans un THREAD
     init_listbot(&list_bot);
     partie_udp();
+    // PARTIE Client TCP dans un THREAD
+    partie_tcp();
     //while true pour ne pas sortir du main et laisser
     //le temps aux fct de faire des threads etc
     while (1)

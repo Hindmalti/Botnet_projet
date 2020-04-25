@@ -4,7 +4,7 @@
 #include "bot.h"
 
 void gestionClientTCP(void *s);
-
+void recvFile(void *s, char* filename);
 void nouveauClient(int dialogue);
 void TCP(void *arg);
 void partie_tcp_BOT();

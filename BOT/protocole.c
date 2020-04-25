@@ -20,7 +20,7 @@
 extern liste_cu_t list_CU;
 extern info_bot_t *bot;
 /**
- * void send_status(info_bot_t info, int socket_tcp)
+ * void send_status(int socket_tcp)
  * Fonction qui envoie le statut du bot au CC sur la socket TCP
  * param la socket de communication 
  
@@ -36,7 +36,7 @@ void send_status(int socket_tcp)
     }
 }
 /**
- * void start_charge(char *file_name, charge_utile_t structure)
+ * void start_charge(char *file_name)
  * Fonction permettant d'exécuter une charge utile 
  * param structure de la charge utile 
  */

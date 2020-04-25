@@ -15,6 +15,13 @@
 
 #include "libshm.h"
 
+/** int getShm(key_t key, size_t size_shm, void **mem_adr)
+ * Fonction permettant de créer une shared memory
+ * param la clé 
+ * param taille de la shm
+ * param la shm
+*/
+
 int getShm(key_t key, size_t size_shm, void **mem_adr)
 {
     printf("[getShm]Start\n");
@@ -36,7 +43,12 @@ int getShm(key_t key, size_t size_shm, void **mem_adr)
     
     return (0);
 }
-
+/** int ecritureShm(void *mem_adr, void *msg, size_t  size)
+ * Fonction permettant d'écrire sur une shm
+ * param la shm sur laquelle écrire
+ * param le msg à écrire
+ * param la taille du msg à écrire 
+*/
 int ecritureShm(void *mem_adr, void *msg, size_t  size)
 {
 
@@ -44,9 +56,16 @@ int ecritureShm(void *mem_adr, void *msg, size_t  size)
     //printf("[ecritureShm]j'ai recup au début est : %s\n", mem_arr);
     memcpy(mem_adr, msg, size);
     //printf("[ecritureShm]La shared memory contient : %s\n", mem_arr);
-    shmdt(mem_adr);
+    //shmdt(mem_adr);
     return 0;
 }
+/** void lectureShm(key_t key, void **msg_recu, size_t size)
+ * Fonction permettant de lire depuis une shm
+ * param la clé pour accéder à la bonne shm
+ * param un receptacle pour y mettre le msg reçu
+ * param la taille du msg à recevoir
+ * 
+*/
 void lectureShm(key_t key, void **msg_recu, size_t size)
 {
 
@@ -62,8 +81,9 @@ void lectureShm(key_t key, void **msg_recu, size_t size)
         perror("shmat");
         exit(2);
     }
-    *msg_recu = (char *)shared_mem;
+    *msg_recu = (void *)shared_mem;
     
     //printf("J'ai lu sur la shm : %s \n", (char *)shared_mem);
-    shmdt(shared_mem);
+    // TO DO : penser quand supprimer 
+    //shmdt(shared_mem);
 }

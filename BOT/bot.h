@@ -2,12 +2,14 @@
 #define BOT_H
 
 #include <time.h>
-
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
 /*       Constantes       */
 #define PORT_UDP_CLIENT 4242
 #define PORT_UDP_SERVEUR 4242
 #define PORT_TCP_CLIENT 4242
-#define PORT_TCP_SERVEUR "4242"
+#define PORT_TCP_SERVEUR 4242
 #define TAILLE_STRUCTURE 32
 #define TAILLE_FILENAME 20
 #define TAILLE_MSG_ERREUR 50
@@ -21,6 +23,7 @@
 #define SIZE_FILE 1000
 
 
+
 typedef struct
 {
     char ID[SIZE_ID];          //ID sur 6 octets
@@ -28,6 +31,10 @@ typedef struct
     char etat;                 // état du bot actif/inactif
 } info_bot_t;
 
+typedef struct {
+    info_bot_t *info;
+    struct sockaddr_in  addr;
+} bot_t;
 typedef struct
 {
     void *plugin;

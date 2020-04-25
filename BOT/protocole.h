@@ -12,4 +12,5 @@ int getChargeFromMessage(int socket, charge_utile_t **returned_charge);
 void receive_cmd_TCP(void *arg);
 void install_charge(char *file_name);
 void rm_charge(char *filename);
+void quit_connexion();
 #endif

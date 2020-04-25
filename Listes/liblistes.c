@@ -5,17 +5,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 
 /** void init_listCU(liste_cu_t* list)
  * Fonction permetant d'inistialiser une liste de charges utiles
+ * param pointeur vers la liste de charges utiles
 */
 
 void init_listCU(liste_cu_t *list)
 { //Init new list
     *list = NULL;
 }
-/** void init_listbot(info_bot_t *bot)
+/** void init_listbot(liste_bot_t *bot)
  * Fonction permetant d'inistialiser une liste de bots
+ * param pointeur vers la liste de bots
 */
 
 void init_listbot(liste_bot_t *bot)
@@ -36,15 +42,15 @@ void ajout_tete_cu(liste_cu_t *list, charge_utile_t *charge)
     *list = newNode;
 }
 
-/** void ajout_tete_bot(liste_bot_t *list, info_bot_t *bot)
+/** void ajout_tete_bot(liste_bot_t *list, bot_t *bot)
  * Fonction permetant d'ajouter en tete des bots
  * param pointeur d'une liste de bot
- * param pointeur d'une structure de bot
+ * param pointeur d'une structure de bot_t
 */
 
-void ajout_tete_bot(liste_bot_t *list, info_bot_t *bot)
+void ajout_tete_bot(liste_bot_t *list, bot_t *bot)
 {
-    node_bot_t *newNode = (node_bot_t *)malloc(sizeof(node_bot_t));
+    node_bot_t *newNode = (node_bot_t *)malloc(sizeof(bot_t));
     newNode->bot = bot;
     newNode->next = (struct node_bot_t *)*list;
     *list = newNode;
@@ -64,16 +70,17 @@ void print_CU_structure(charge_utile_t *charge)
     printf("\t}\n");
 }
 
-/** void print_CU_structure(charge_utile_t *charge)
- *  Fonction permettant d'imprimer une charge utile sous format json
- *  param pointeur vers une charge utile
+/** void print_BOT_structure(bot_t *bot)
+ *  Fonction permettant d'imprimer une structure de bot_t sous format json
+ *  param pointeur vers un bot_t
  */
-void print_BOT_structure(info_bot_t *bot)
+void print_BOT_structure(bot_t *bot)
 {
     printf("\t{\n");
-    printf("\t\t\"ID\": %s,\n", bot->ID);
-    printf("\t\t\"Temps de vie\": %s,\n", bot->life_time);
-    printf("\t\t\"Etat\": %c\n", bot->etat);
+    printf("\t\t\"ID\": %s,\n", bot->info->ID);
+    printf("\t\t\"Temps de vie\": %s,\n", bot->info->life_time);
+    printf("\t\t\"Etat\": %c,\n", bot->info->etat);
+    printf("\t\t\"IP\": %s\n", inet_ntoa(bot->addr.sin_addr));
     printf("\t}\n");
 }
 /**void print_listeCU(liste_cu_t liste)
@@ -114,10 +121,11 @@ void print_listeBot(liste_bot_t liste)
     printf("]\n");
 }
 
-/** charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste)
+/** charge_utile_t *rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge)
  *  Fonction permettant de rechercher une charge utile grâce à son nom
  *  param le nom de la charge utile
  *  param la liste des charges utiles
+ *  param receptacle à remplir 
  *  return la structure de la charge utile
  */
 int rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge)
@@ -142,17 +150,16 @@ int rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge)
     return 1;
 }
 
-/** void rechercheBOT(char *id, liste_bot_t *bot)
+/** void rechercheBOT(char *id, liste_bot_t *list, bot_t **bot)
  *  Fonction permettant de rechercher une charge utile grâce à son ID
  *  param l'ID du bot
  *  param la liste des bots
+ * receptacle à remplir
  */
-void rechercheBOT(char *id, liste_bot_t *list, info_bot_t **bot) {
+void rechercheBOT(char *id, liste_bot_t *list, bot_t **bot) {
     node_bot_t *current = *list;
     while (current != NULL) {
-        if (strcmp(current->bot->ID, id) == 0) {
-            printf("The file with the ID %s is here \n", id);
-            print_BOT_structure(current->bot);
+        if (strcmp(current->bot->info->ID, id) == 0) {
             *bot = current->bot;
             return;
         } else {
@@ -160,7 +167,7 @@ void rechercheBOT(char *id, liste_bot_t *list, info_bot_t **bot) {
         }
     }
     *bot = NULL;
-    printf("Error : this Bot doesn't exist\n");
+    printf("Impossible de trouver le bot dans la liste chainée\n");
 }
 /** void supp_tete(liste_cu_t *liste)
  * Fonction per mettant de supprimer un elmt de la liste
@@ -231,15 +238,16 @@ void supp_elm_liste_BOT(liste_bot_t *bot, char *id)
     node_bot_t *current = *bot;
     node_bot_t *prev;
     //Cas où le bot à supprimer est le premier de la liste des bots
-    if (current != NULL && (strcmp(current->bot->ID, id) == 0))
+    if (current != NULL && (strcmp(current->bot->info->ID, id) == 0))
     {
         *bot = (liste_bot_t)current->next;
         printf("The bot  with ID : '%s' will be deleted ! \n", id);
+        free(current->bot->info);
         free(current->bot);
         free(current);
         return;
     }
-    while (current != NULL && (strcmp(current->bot->ID, id) != 0))
+    while (current != NULL && (strcmp(current->bot->info->ID, id) != 0))
     {
         prev = current;
         current = (liste_bot_t)current->next;
@@ -253,6 +261,7 @@ void supp_elm_liste_BOT(liste_bot_t *bot, char *id)
 
     prev->next = current->next;
     printf("The bot  with ID : '%s' will be deleted ! \n", id);
+    free(current->bot->info);
     free(current->bot);
     free(current);
 }
@@ -287,6 +296,7 @@ void detruire_liste_BOT(liste_bot_t *bot)
     node_bot_t *current = *bot;
     while (current != NULL)
     {
+        free(current->bot->info);
         free(current->bot);
         next = (node_bot_t*)current->next;
         free(current);
@@ -296,58 +306,3 @@ void detruire_liste_BOT(liste_bot_t *bot)
     *bot = NULL;
     printf("SUCCESSFULLY DELETED ALL NODES OF LINKED LIST\n");
 }
-/* int main()
-{
-    charge_utile_t *charge1 = (charge_utile_t *)malloc(sizeof(charge_utile_t));
-    charge_utile_t *charge2 = (charge_utile_t *)malloc(sizeof(charge_utile_t));
-    strcpy(charge1->nom, "Charge1");
-    charge1->resultat = 0;
-    charge1->executed = 1;
-
-    strcpy(charge2->nom, "Charge2");
-    charge2->resultat = 500;
-    charge2->executed = 1;
-
-    liste_cu_t list;
-    init_listCU(&list);
-
-    ajout_tete_cu(&list, charge1);
-    ajout_tete_cu(&list, charge2);
-
-    print_listeCU(list);
-    rechercheCU("Charge2", &list);
-    supp_elm_liste_CU(&list, "Charge1");
-    print_listeCU(list);
-    detruire_liste_CU(&list);
-    print_listeCU(list);
-    return 0;
-}
- */
-/* 
-int main()
-{
-    info_bot_t *bot1 = (info_bot_t *)malloc(sizeof(info_bot_t));
-    info_bot_t *bot2 = (info_bot_t *)malloc(sizeof(info_bot_t));
-    strcpy(bot1->ID, "bot100");
-    strcpy(bot1->life_time, "0,02");
-    //strcpy(bot1->etat, "0");
-
-    strcpy(bot2->ID, "bot200");
-    strcpy(bot2->life_time, "0,01");
-    //strcpy(bot2->etat, "1");
-
-    liste_bot_t list;
-    init_listbot(&list);
-
-    ajout_tete_bot(&list, bot1);
-    ajout_tete_bot(&list, bot2);
-
-    print_listeBot(list);
-    rechercheBOT("bot200", &list);
-    supp_elm_liste_BOT(&list, "bot100");
-    print_listeBot(list);
-    detruire_liste_BOT(&list);
-    print_listeBot(list); 
-    return 0;
-}
-*/

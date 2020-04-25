@@ -42,22 +42,20 @@ void gestionClientTCP(void *s)
     return;
 }
 /**
- * void recvFile(void *s)
+ * void recvFile(void *s, char* filename)
  * Fonction qui reçoi le fichier.so envoyé par le CC
  * elle le receptionne et le crée dans son dossier
  * param pointeur vers la socket TCP
  */
 void recvFile(void *s, char* filename)
 {
-    //TODO : Il faut que recvFile prenne un pointeur de filename
+    
     int socket_tcp = *((int *)s);
     char buff[BUFSIZ]; // to store file from client
     char file_size[256];
     //char file_name[TAILLE_FILENAME];
     ssize_t len;
     FILE *fp;
-    //Todo : Ce filename doit être recu par la socket
-    //strcpy(file_name, "example.so");
     fp = fopen(filename, "w"); // stores the file content in start in the program directory
     if (fp == NULL)
     {
@@ -120,7 +118,8 @@ void TCP(void *arg)
 {
     (void)arg;
     printf("############ Partie TCP ############\n");
-    char port_s[6] = PORT_TCP_SERVEUR;
+    char port_s[6];
+    sprintf(port_s, "%d", PORT_TCP_SERVEUR);
     int socket_tcp;
     // Initialisation du serveur
     socket_tcp = initialisationServeurTCP(port_s);
