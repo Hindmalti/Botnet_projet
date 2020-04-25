@@ -71,10 +71,10 @@ void page_acceuil(int nb_bots, char* ListeBot[])
     fclose(acceuil);
 }
 
-char* extract_filename(char * chaine){
+char* extract_filename(char* chaine, int stop){
         int i = 0;
         char* temp = strtok(chaine, "\"");
-        while(temp != NULL && i!=4){
+        while(temp != NULL && i!=stop){
                 temp=strtok(NULL, "\"");
                 i++;
             }
@@ -193,8 +193,14 @@ void gestionClientWeb(void *s)
 
     }
     else{
+        char* d1=malloc(content_length);
+        char* d2=malloc(content_length);
+        strcpy(d1, donnees);
+        strcpy(d2, donnees);
         printf("Il s'agit d'un fichier récupéré ici\n");
-        printf("filename = %s\n", extract_filename(donnees));
+        printf("Le bot est = %s\n", extract_filename(d1, 1));
+        printf("filename = %s\n", extract_filename(d2, 4));
+        
     }
 
     //printf("%ld", fread(buffer,strlen(buffer)+1, 1, dialogue));
