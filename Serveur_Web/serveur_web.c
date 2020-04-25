@@ -36,6 +36,7 @@ char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
 
 */
 
+
 void page_acceuil(int nb_bots, char* ListeBot[])
 {
     FILE *acceuil = fopen("www/acceuil.html", "w");
@@ -70,6 +71,17 @@ void page_acceuil(int nb_bots, char* ListeBot[])
     fclose(acceuil);
 }
 
+char* extract_filename(char * chaine){
+        int i = 0;
+        char* temp = strtok(chaine, "\"");
+        while(temp != NULL && i!=4){
+                temp=strtok(NULL, "\"");
+                i++;
+            }
+        temp = strtok(NULL, "\"");
+    return temp;
+}
+
 void gestionClientWeb(void *s)
 {
 
@@ -83,6 +95,7 @@ void gestionClientWeb(void *s)
     char* Bot;
     char* Charge;
     char* Commande;
+    char* filename;
 
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
@@ -135,7 +148,8 @@ void gestionClientWeb(void *s)
         }
         donnees[content_length] = '\0';
     }
-    printf(" CONTENU DU FICHIER =%s\n", donnees);
+
+    printf(" CONTENU DU FICHIER =%s\n",donnees);
     printf("fin de mon contenu\n");
 
     //Différenciation du type de requete
@@ -178,7 +192,10 @@ void gestionClientWeb(void *s)
         
 
     }
-    else printf("Il s'agit d'un fichier récupéré ici\n");
+    else{
+        printf("Il s'agit d'un fichier récupéré ici\n");
+        printf("filename = %s\n", extract_filename(donnees));
+    }
 
     //printf("%ld", fread(buffer,strlen(buffer)+1, 1, dialogue));
     // 1) faire un malloc de la longueur de ma page (content-length) qui doit etre
