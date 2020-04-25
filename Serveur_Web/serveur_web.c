@@ -71,14 +71,17 @@ void page_acceuil(int nb_bots, char* ListeBot[])
     fclose(acceuil);
 }
 
-char* extract_filename(char* chaine, int stop){
+char* extraction(char* chaine, int stop, const char* delim){
         int i = 0;
-        char* temp = strtok(chaine, "\"");
+        char* temp = strtok(chaine, delim);
         while(temp != NULL && i!=stop){
-                temp=strtok(NULL, "\"");
+                temp=strtok(NULL, delim);
                 i++;
             }
-        temp = strtok(NULL, "\"");
+        if(i==0){
+            return temp;
+        }
+        temp = strtok(NULL, delim);
     return temp;
 }
 
@@ -156,6 +159,7 @@ void gestionClientWeb(void *s)
     if(donnees[0]=='B'){
         char *temp;
         int i = 0;
+        
         temp = strtok(donnees, "&");
         while(temp != NULL && i<3){
             if(i==0){
@@ -175,6 +179,7 @@ void gestionClientWeb(void *s)
             }
             
         }
+        
         
         if(sscanf(Bot, "Bot=%s", Bot)!=1)
         {
@@ -198,10 +203,11 @@ void gestionClientWeb(void *s)
         strcpy(d1, donnees);
         strcpy(d2, donnees);
         printf("Il s'agit d'un fichier récupéré ici\n");
-        printf("Le bot est = %s\n", extract_filename(d1, 1));
-        printf("filename = %s\n", extract_filename(d2, 4));
-        
+        printf("Le bot est = %s\n", extraction(extraction(extraction(d1, 1, "\""), 0, "-"), 1, "\n"));
+        printf("filename = %s\n", extraction(d2, 4, "\""));
     }
+
+    
 
     //printf("%ld", fread(buffer,strlen(buffer)+1, 1, dialogue));
     // 1) faire un malloc de la longueur de ma page (content-length) qui doit etre
