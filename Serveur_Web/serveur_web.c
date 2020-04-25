@@ -26,9 +26,8 @@
 
 #define NB_BOTS 3
 
-//pour des besoins de tests on prepare une liste 
+//pour des besoins de tests on prepare une liste
 char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
-
 
 /**
 * Void page_acceuil(int nb_bots, char* ListeBot[])
@@ -36,7 +35,7 @@ char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
 * La fonction va se charger de créer la page d'acceuil html
 * cette page d'acceuil nous permettra de faire nos commandes selon le bot souhaité
 */
-void page_acceuil(int nb_bots, char* ListeBot[])
+void page_acceuil(int nb_bots, char *ListeBot[])
 {
     FILE *acceuil = fopen("www/acceuil.html", "w");
     if (acceuil != NULL)
@@ -44,8 +43,8 @@ void page_acceuil(int nb_bots, char* ListeBot[])
         //fprintf(dialogue,"HTTP/1.1 200 OK\n");
         //fprintf(dialogue,"Content-Type: text/html;\n\n");
         fprintf(acceuil, "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"utf-8\"/><title>upload</title></head>");
-        fprintf(acceuil,"<body><h1 color:rgb(250,128,114)> BOTS </h1><h3>Groupe: Hind MALTI & Loris AHOUASSOU</h3>");
-        fprintf(acceuil,"<div><form action=\"acceuil.html\" method=\"post\" enctype=\"application/x-www-form-urlencoded\">Choisissez un Bot : <select name=\"Bot\">");
+        fprintf(acceuil, "<body><h1 color:rgb(250,128,114)> BOTS </h1><h3>Groupe: Hind MALTI & Loris AHOUASSOU</h3>");
+        fprintf(acceuil, "<div><form action=\"acceuil.html\" method=\"post\" enctype=\"application/x-www-form-urlencoded\">Choisissez un Bot : <select name=\"Bot\">");
         for (int i = 0; i < nb_bots; i++)
         {
             fprintf(acceuil, "<option value=\"%s\">%s</option>", ListeBot[i], ListeBot[i]);
@@ -84,17 +83,20 @@ void page_acceuil(int nb_bots, char* ListeBot[])
  * extraire de la requete post le type de commande
 */
 
-char* extraction(char* chaine, int stop, const char* delim){
-        int i = 0;
-        char* temp = strtok(chaine, delim);
-        while(temp != NULL && i!=stop){
-                temp=strtok(NULL, delim);
-                i++;
-            }
-        if(i==0){
-            return temp;
-        }
+char *extraction(char *chaine, int stop, const char *delim)
+{
+    int i = 0;
+    char *temp = strtok(chaine, delim);
+    while (temp != NULL && i != stop)
+    {
         temp = strtok(NULL, delim);
+        i++;
+    }
+    if (i == 0)
+    {
+        return temp;
+    }
+    temp = strtok(NULL, delim);
     return temp;
 }
 
@@ -117,10 +119,10 @@ void gestionClientWeb(void *s)
     char type[MAX_BUFFER];
 
     //on prepare les receptacle des sous-chaines à extraire
-    char* Bot;
-    char* Charge;
-    char* Commande;
-    char* filename;
+    char *Bot;
+    char *Charge;
+    char *Commande;
+    char *filename;
 
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
@@ -130,7 +132,6 @@ void gestionClientWeb(void *s)
         perror("gestionClient.fdopen");
         exit(EXIT_FAILURE);
     }
-
 
     //Gestion des requêtes POST et GET
 
@@ -165,7 +166,7 @@ void gestionClientWeb(void *s)
         donnees[content_length] = '\0';
     }
 
-    printf(" CONTENU DU FICHIER =%s\n",donnees); //pour voir
+    printf(" CONTENU DU FICHIER =%s\n", donnees); //pour voir
     printf("fin de mon contenu\n");
 
     /*Extraction des parametres concernant les commandes suivantes :
@@ -175,63 +176,63 @@ void gestionClientWeb(void *s)
     * Effacer
     * Resultat
     */
-    if(donnees[0]=='B'){
+    if (donnees[0] == 'B')
+    {
         char *temp;
         int i = 0;
-        
+
         temp = strtok(donnees, "&");
-        while(temp != NULL && i<3){
-            if(i==0){
-                Bot=temp;
-                temp=strtok(NULL, "&");
+        while (temp != NULL && i < 3)
+        {
+            if (i == 0)
+            {
+                Bot = temp;
+                temp = strtok(NULL, "&");
                 i++;
             }
-            if(i==1){
-                Charge=temp;
-                temp=strtok(NULL, "&");
+            if (i == 1)
+            {
+                Charge = temp;
+                temp = strtok(NULL, "&");
                 i++;
             }
-            if(i==2){
-                Commande=temp;
-                temp=strtok(NULL, "&");
+            if (i == 2)
+            {
+                Commande = temp;
+                temp = strtok(NULL, "&");
                 i++;
             }
-            
         }
-        
-        
-        if(sscanf(Bot, "Bot=%s", Bot)!=1)
+
+        if (sscanf(Bot, "Bot=%s", Bot) != 1)
         {
             printf("Erreur recupération commande\n");
         }
-        if(sscanf(Charge, "Charge=%s", Charge)!=1)
+        if (sscanf(Charge, "Charge=%s", Charge) != 1)
         {
             printf("Erreur recupération commande\n");
         }
-        if(sscanf(Commande, "Commande=%s", Commande)!=1)
+        if (sscanf(Commande, "Commande=%s", Commande) != 1)
         {
             printf("Erreur recupération commande\n");
         }
         //fin de l'extraction, on afficher les paramètres
         printf("Le Bot est %s, la charge est %s, et la commande est %s\n", Bot, Charge, Commande);
-        
-
     }
 
     /*Sinon dans le cas de la commande d'installation d'une charge
     * On extrait le nom du fichier et du bot concerné
     */
-    else{
-        char* d1=malloc(content_length);
-        char* d2=malloc(content_length);
+    else
+    {
+        char *d1 = malloc(content_length);
+        char *d2 = malloc(content_length);
         strcpy(d1, donnees);
         strcpy(d2, donnees);
         printf("Il s'agit d'un fichier récupéré ici\n");
         printf("Le bot est = %s\n", extraction(extraction(extraction(d1, 1, "\""), 0, "-"), 1, "\n"));
         printf("filename = %s\n", extraction(d2, 4, "\""));
     }
-
-    
 
     // Traitement des réquêtes POST et GET : adapté du serveur web C minimal
     // le traitement de la requête post a été rajouté.
@@ -275,7 +276,6 @@ void gestionClientWeb(void *s)
 
     fclose(dialogue);
 }
-
 
 /**void nouveauClientWeb(int dialogue)
  * elle prend en paramètre la socket de dialogue
