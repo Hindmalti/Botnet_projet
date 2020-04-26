@@ -15,7 +15,11 @@
 #include <errno.h>
 
 #include "serveur_web.h"
-/** quelques constantes **/
+//#include <libshm.h>
+#include "../IPC/libshm.h"
+//#include <libnetwork.h>
+#include "../Listes/liblistes.h"
+/** quelques constantes pour le serveur **/
 
 #define WEB_DIR "./www"
 #define PAGE_NOTFOUND "error.html"
@@ -24,11 +28,44 @@
 #define CODE_OK 200
 #define CODE_NOTFOUND 404
 
+/** constantes pour la shm **/
+#define KEY_DATA_CC (key_t)400
+#define KEY_NBRE_BOT (key_t)987
+#define KEY_DATA (key_t)100
+
+#define KEY (key_t)1996
+
+#define SIZE 1024
+#define NBRE_MAX_BOT 100 
+
+/** -------- **/
 #define NB_BOTS 3
 
 //pour des besoins de tests on prepare une liste
 char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
 
+
+void send_data(const char *cmd, const char *filename, const char *id_bot)
+{
+    void *mem_adr;
+    getShm(KEY_DATA, SIZE, &mem_adr);
+    char to_write[30];
+    //to_write = "1,example.so,bot123"
+    sprintf(to_write, "%s,%s,%s", cmd, filename, id_bot);
+    sprintf((char *)mem_adr, "%s,%s", to_write, (char *)mem_adr);
+    //Suppression de la dernière virgule de la chaine de caractère
+    size_t taille_chaine = strlen((char*)mem_adr);
+    *(char *)(mem_adr + taille_chaine - 1) = 0;
+    printf("[Simul]La shm contient: %s \n", (char *)mem_adr);
+}
+
+char* trans_commande(char * commande){
+      if (commande=="Statut") return "1";
+      if (commande=="Executer") return "3";
+      if (commande=="Resultat") return "4";
+      if (commande=="Effacer") return "5";
+      if (commande=="Quitter") return "6";
+}
 /**
 * Void page_acceuil(int nb_bots, char* ListeBot[])
 * Fonction qui utilise la liste des id de bots reçu du CC et le nombre de bots
@@ -122,7 +159,6 @@ void gestionClientWeb(void *s)
     char *Bot;
     char *Charge;
     char *Commande;
-    char *filename;
 
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
@@ -170,11 +206,11 @@ void gestionClientWeb(void *s)
     printf("fin de mon contenu\n");
 
     /*Extraction des parametres concernant les commandes suivantes :
-    * Statut
-    * Quitter
-    * Executer
-    * Effacer
-    * Resultat
+    * Statut 1
+    * Executer 3
+    * Resultat 4
+    * Effacer 5 
+    * Quitter 6
     */
     if (donnees[0] == 'B')
     {
@@ -218,9 +254,10 @@ void gestionClientWeb(void *s)
         }
         //fin de l'extraction, on afficher les paramètres
         printf("Le Bot est %s, la charge est %s, et la commande est %s\n", Bot, Charge, Commande);
+        
     }
 
-    /*Sinon dans le cas de la commande d'installation d'une charge
+    /*Sinon dans le cas de la commande d'installation d'une charge 2
     * On extrait le nom du fichier et du bot concerné
     */
     else
