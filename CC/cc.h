@@ -18,6 +18,13 @@
 #define SIZE_DATA 19
 #define NBRE_MAX_BOT 100 // on fixe la taille max du nbre de bots sinon on ne pourra pas redimensionner la shm
 
+
+#ifdef DEBUG
+# define DEBUG_PRINT(x) printf x
+#else
+# define DEBUG_PRINT(x) do {} while (0)
+#endif
+
 extern liste_bot_t list;
 typedef struct
 {

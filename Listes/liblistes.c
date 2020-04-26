@@ -76,6 +76,9 @@ void print_CU_structure(charge_utile_t *charge)
  */
 void print_BOT_structure(bot_t *bot)
 {
+    if(bot == NULL) {
+        fprintf(stderr, "Erreur dans l'affichage du bot\n");
+    }
     printf("\t{\n");
     printf("\t\t\"ID\": %s,\n", bot->info->ID);
     printf("\t\t\"Temps de vie\": %s,\n", bot->info->life_time);
@@ -167,7 +170,6 @@ void rechercheBOT(char *id, liste_bot_t *list, bot_t **bot) {
         }
     }
     *bot = NULL;
-    printf("Impossible de trouver le bot dans la liste chainée\n");
 }
 /** void supp_tete(liste_cu_t *liste)
  * Fonction per mettant de supprimer un elmt de la liste

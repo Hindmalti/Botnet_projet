@@ -19,13 +19,11 @@ int init_socket_bot(bot_t *bot)
     if (socket_tcp < 0)
     {
         //Test de la valeur de retour de la socket
-        perror("sendUDPBroadcast.socket");
-        exit(-1);
+        perror("init_socket_bot.socket");
     }
     if (connect(socket_tcp, (struct sockaddr *)&bot->addr, sizeof(bot->addr)) < 0)
     {
-        printf("connection with the server failed...\n");
-        exit(0);
+        fprintf(stderr,"connection with the server failed...\n");
     }
     return socket_tcp;
 }
@@ -37,14 +35,9 @@ int init_socket_bot(bot_t *bot)
  */
 void reception_serveur_web(void *arg)
 {
-    sleep(3);
     (void)arg;
     while (1)
-    {
-        //On récupère du serveur web les ordres à envoyer aux bots
-        getOrdreFromShm();
-        sleep(5);
-    }
+    {}
 }
 
 /**
@@ -54,8 +47,7 @@ void reception_serveur_web(void *arg)
  */
 void partie_tcp()
 {
-    sleep(10);
-    printf("############ Partie TCP ############\n");
+    DEBUG_PRINT(("############ Partie TCP ############\n"));
     //Reception des ordres du serveur web
     lanceThread(reception_serveur_web, (void *)NULL, 0);
     //Reception des ordres de la CLI admin

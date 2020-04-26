@@ -12,9 +12,6 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
-#include "envoie_udp.h"
-#include "ecoute_tcp.h"
-#include "protocole.h"
 
 #include <libthrd.h>
 #include <libnetwork.h>

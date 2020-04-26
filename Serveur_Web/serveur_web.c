@@ -13,6 +13,9 @@
 #include <libthrd.h>
 #include <libnetwork.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <signal.h>
+
 
 #include "serveur_web.h"
 //#include <libshm.h>
@@ -36,7 +39,7 @@
 #define KEY (key_t)1996
 
 #define SIZE 1024
-#define NBRE_MAX_BOT 100 
+#define NBRE_MAX_BOT 100
 
 /** -------- **/
 #define NB_BOTS 3
@@ -44,29 +47,38 @@
 //pour des besoins de tests on prepare une liste
 //char *ListeBot[3] = {"Bot1", "Bot2", "Bot3"};
 
-
 void send_data(const char *cmd, const char *filename, const char *id_bot)
 {
     void *mem_adr;
     getShm(KEY_DATA, SIZE, &mem_adr);
     char to_write[30];
     //to_write = "1,example.so,bot123"
-    sprintf(to_write, "%s,%s,%s", cmd, filename, id_bot);
-    sprintf((char *)mem_adr, "%s,%s", to_write, (char *)mem_adr);
-    //Suppression de la dernière virgule de la chaine de caractère
-    size_t taille_chaine = strlen((char*)mem_adr);
-    *(char *)(mem_adr + taille_chaine - 1) = 0;
+    sprintf((char *)mem_adr, "%s,%s,%s", cmd, filename, id_bot);
+    //Envoie un signal au CC
+    char line[50];
+    FILE *command = popen("pidof cc", "r");
+    fgets(line, 50, command);
+    pid_t pid = strtoul(line, NULL, 10);
+    pclose(command);
+    kill(pid, SIGUSR1);
+    printf("J ENVOIE LE SIGNAL AU CC\n");
     printf("[Simul]La shm contient: %s \n", (char *)mem_adr);
 }
 
-char* trans_commande(char * commande){
-      if (strcmp(commande, "Statut")==0) return "1";
-      else if (strcmp(commande, "Executer")==0) return "3";
-      else if (strcmp(commande, "Resultat")==0) return "4";
-      else if (strcmp(commande, "Effacer")==0) return "5";
-      else if (strcmp(commande, "Quitter")==0) return "6";
-      else return 0;
-
+char *trans_commande(char *commande)
+{
+    if (strcmp(commande, "Statut") == 0)
+        return "1";
+    else if (strcmp(commande, "Executer") == 0)
+        return "3";
+    else if (strcmp(commande, "Resultat") == 0)
+        return "4";
+    else if (strcmp(commande, "Effacer") == 0)
+        return "5";
+    else if (strcmp(commande, "Quitter") == 0)
+        return "6";
+    else
+        return 0;
 }
 /**
 * Void page_acceuil(int nb_bots, char* ListeBot[])
@@ -359,12 +371,11 @@ int main(void)
     printf("le nbre bots est : %d\n", *nbre_bot);
     lectureShm(KEY, (void *)&array_bots, NBRE_MAX_BOT * sizeof(info_bot_t));
 
-    char* ListeBot[*nbre_bot];
-
+    char *ListeBot[*nbre_bot];
 
     for (int i = 0; i < *nbre_bot; i++)
     {
-        ListeBot[i]=array_bots[i].ID;
+        ListeBot[i] = array_bots[i].ID;
         printf("-----------------BOT_INACTIF-------------------------\n");
         printf("\nID : %s \nlife_time: %s \netat: %c\n\n", array_bots[i].ID, array_bots[i].life_time, array_bots[i].etat);
         printf("------------------------------------------\n");

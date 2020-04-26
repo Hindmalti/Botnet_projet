@@ -22,6 +22,11 @@
 #define SIZE_TIME 5
 #define SIZE_FILE 1000
 
+#ifdef DEBUG
+# define DEBUG_PRINT(x) printf x
+#else
+# define DEBUG_PRINT(x) do {} while (0)
+#endif
 
 
 typedef struct
@@ -52,7 +57,7 @@ extern clock_t debut;
 typedef int (*init_f)(void *);
 
 void gestionClientTCP(void *s);
-
+void recvFile(void *s, char* filename);
 void nouveauClient(int dialogue);
 void TCP(void *arg);
 void partie_tcp_BOT();
@@ -61,15 +66,19 @@ void partie_tcp_BOT();
 void EnvoieBroadcast();
 void partie_udp_BOT(clock_t debut);
 
-void recvFile(void *s, char* filename);
-void start_charge(char *filename);
-void print_CU_structure(charge_utile_t *structure);
-void receive_cmd_TCP(void *arg);
-void install_charge(char *file_name);
-void rm_charge(char *filename);
 void send_status(int socket_tcp);
 void send_result(int socket_tcp, int *resultat);
 void quit_connexion();
+void start_charge(char *filename);
+void print_CU_structure(charge_utile_t *structure);
+int getChargeFromMessage(int socket, charge_utile_t **returned_charge);
+void receive_cmd_TCP(void *arg);
+int install_charge(char *file_name);
+int rm_charge(char *filename);
+void quit_connexion();
+
+
+
 
 char *create_ID(char *);
 char *timeLife(clock_t, char *);

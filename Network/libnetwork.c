@@ -275,7 +275,7 @@ int boucleServeurUDP(int s, int (*traitement_udp)(struct sockaddr_storage, void 
     {
         struct sockaddr_storage adresse;
         socklen_t taille = sizeof(adresse);
-        void *payload = malloc(sizeof(taille_payload));
+        void *payload = malloc(taille_payload);
         int nboctets = recvfrom(s, payload, taille_payload, 0, (struct sockaddr *)&adresse, &taille);
         if (nboctets < 0)
             return -1;
@@ -287,17 +287,7 @@ int boucleServeurUDP(int s, int (*traitement_udp)(struct sockaddr_storage, void 
             exit(-1);
         }
     }
-
-    //printf("error getnameinfo");
-    /*break;
-    default:
-    printf("oups\n");
-    break;
-  }*/
-    if (traitement(message, hote) < 0)
-        break; //on renvoie juste le message et l'adresse
-}
-return 0;
+    return 0;
 }
 
 // Envoie un messag//e TCP sur une connexion active
@@ -312,4 +302,13 @@ void sendTCP(int socket, char *message, int length_message)
 int receiveTCP(int socket, char *message, int max_length)
 {
     return read(socket, message, max_length);
+}
+
+void renvoieErreur(int socket) {
+    int code = CODE_ERREUR;
+    write(socket, (void*)&code, sizeof(int));
+}
+void renvoieSucces(int socket) {
+    int code = CODE_SUCCES;
+    write(socket, (void*)&code, sizeof(int));
 }
