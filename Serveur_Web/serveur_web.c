@@ -161,6 +161,7 @@ void gestionClientWeb(void *s)
     char *Bot;
     char *Charge;
     char *Commande;
+    char *filename;
 
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
@@ -270,9 +271,22 @@ void gestionClientWeb(void *s)
         char *d2 = malloc(content_length);
         strcpy(d1, donnees);
         strcpy(d2, donnees);
+        Bot = extraction(extraction(extraction(d1, 1, "\""), 0, "-"), 1, "\n");
+        Charge = extraction(d2, 4, "\"");
         printf("Il s'agit d'un fichier récupéré ici\n");
-        printf("Le bot est = %s\n", extraction(extraction(extraction(d1, 1, "\""), 0, "-"), 1, "\n"));
-        printf("filename = %s\n", extraction(d2, 4, "\""));
+        printf("Le bot est = %s\n", Bot);
+        printf("filename = %s\n", Charge);
+        sprintf(filename, "../CC/%s", Charge);
+
+        //création et mise en place du fichier dans le CC
+        FILE* fichier = fopen(filename, "w");
+ 
+        if (fichier != NULL)
+        {
+            fputs(donnees, fichier);
+            fclose(fichier);
+        }
+
     }
 
     // Traitement des réquêtes POST et GET : adapté du serveur web C minimal
