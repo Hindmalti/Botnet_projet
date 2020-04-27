@@ -173,7 +173,7 @@ void gestionClientWeb(void *s)
     char *Bot;
     char *Charge;
     char *Commande;
-    char *filename;
+    char filename[25];
 
     int socket = *((int *)s);
     /* Obtient une structure de fichier */
@@ -227,7 +227,7 @@ void gestionClientWeb(void *s)
     * Effacer 5 
     * Quitter 6
     */
-    if (donnees[0] == 'B')
+    if (donnees[0] == 'B' && content_length > 0)
     {
         char *temp;
         int i = 0;
@@ -277,7 +277,7 @@ void gestionClientWeb(void *s)
     /*Sinon dans le cas de la commande d'installation d'une charge 2
     * On extrait le nom du fichier et du bot concerné
     */
-    else
+    else if(donnees[0]!= 'B' && content_length > 0)
     {
         char *d1 = malloc(content_length);
         char *d2 = malloc(content_length);
@@ -288,7 +288,9 @@ void gestionClientWeb(void *s)
         printf("Il s'agit d'un fichier récupéré ici\n");
         printf("Le bot est = %s\n", Bot);
         printf("filename = %s\n", Charge);
+        printf("avant sprintf\n");
         sprintf(filename, "../CC/%s", Charge);
+        printf("apres sprintf\n");
 
         //création et mise en place du fichier dans le CC
         FILE* fichier = fopen(filename, "w");
@@ -296,10 +298,17 @@ void gestionClientWeb(void *s)
         if (fichier != NULL)
         {
             fputs(donnees, fichier);
+            /*for (int i = 0; i < content_length; i++)
+            {
+                printf("j'ecrisiiiiiii\n");
+                fputc(donnees[i], fichier);
+            } */   
             fclose(fichier);
         }
 
     }
+
+    else printf("Rien à signaler\n");
 
     // Traitement des réquêtes POST et GET : adapté du serveur web C minimal
     // le traitement de la requête post a été rajouté.
