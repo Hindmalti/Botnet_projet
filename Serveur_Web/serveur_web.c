@@ -305,6 +305,8 @@ void gestionClientWeb(void *s)
             } */   
             fclose(fichier);
         }
+        //envoi de la commande d'installation
+        send_data("2", Charge, Bot);
 
     }
 
