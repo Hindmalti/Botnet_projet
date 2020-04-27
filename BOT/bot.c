@@ -12,13 +12,11 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
-
 #include <libthrd.h>
 #include <libnetwork.h>
 #include <liblistes.h>
 #include "bot.h"
 
-//extern info_bot_t *bot;
 liste_cu_t list_CU;
 
 int main()

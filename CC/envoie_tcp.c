@@ -28,9 +28,9 @@ int init_socket_bot(bot_t *bot)
     return socket_tcp;
 }
 
-/**
- * Fonction wrapper à mettre dans un lanceThread, permettant de receptionner les ordres données par le 
- * serveur Web
+/** void reception_serveur_web(void *arg)
+ * Fonction wrapper à mettre dans un lanceThread, permettant de temporiser le temps que le serveurWeb écrive sur la shm
+ * 
  * 
  */
 void reception_serveur_web(void *arg)
@@ -51,5 +51,4 @@ void partie_tcp()
     //Reception des ordres du serveur web
     lanceThread(reception_serveur_web, (void *)NULL, 0);
     //Reception des ordres de la CLI admin
-    //lanceThread(, (void *)NULL, 0);
 }

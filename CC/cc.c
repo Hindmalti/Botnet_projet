@@ -56,8 +56,6 @@ int comptageNbreBot(liste_bot_t list)
 int llist_bot_to_array(liste_bot_t list, info_bot_t *returned_array) 
 {
     int i = 0;
-    // TO DO : réfléchir à où free ce malloc chaque 10 sc ?
-    //info_bot_t *tmp = (info_bot_t *)malloc(nbre * sizeof(info_bot_t));
     node_bot_t *current = list;
     while(current != NULL) {
         strcpy(returned_array[i].ID, current->bot->info->ID);

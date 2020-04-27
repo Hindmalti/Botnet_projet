@@ -52,7 +52,6 @@ void recvFile(void *s, char *filename)
     int socket_tcp = *((int *)s);
     char buff[BUFSIZ]; // to store file from client
     char file_size[256];
-    //char file_name[TAILLE_FILENAME];
     ssize_t len;
     FILE *fp;
     fp = fopen(filename, "w"); // stores the file content in start in the program directory
@@ -66,7 +65,7 @@ void recvFile(void *s, char *filename)
     //TODO : Gérer les retours d'erreur
     recv(socket_tcp, filename, TAILLE_FILENAME, 0);
     // if(erreur)
-    //     appel fonction erreur
+    //     renvoieErreur();
 
     //Recoit la taille du fichier
     recv(socket_tcp, file_size, sizeof(file_size), 0);
@@ -93,10 +92,7 @@ void recvFile(void *s, char *filename)
     {
         renvoieErreur(socket_tcp);
     }
-    else
-    {
-        renvoieSucces(socket_tcp);
-    }
+
 }
 /**
  * void nouveauClient(int dialogue)

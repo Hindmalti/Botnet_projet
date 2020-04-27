@@ -1,20 +1,29 @@
-TARGET=serveur_web
-FLAGS=-Wall -Wextra -I ../libs
-LIBS=-lshm -lnetwork -lthrd -lpthread -L ../libs
+TARGET= serveur_web
+CC=gcc
+SRCS=$(wildcard *.c)
+OBJS = $(SRCS:.c=.o)
+LIBS = -lpthread -ldl
+LOCAL_LIBS = -L ../libs
+LOCAL_LIBS += -lshm -lnetwork -lthrd -llistes
+CFLAGS = -Wall -Wextra -pedantic -I ../libs
+DFLAGS = -g -DDEBUG
 
 all: compile
 
-debug: FLAGS += -DDEBUG
+debug: CFLAGS += $(DFLAGS)
 debug: compile
 
 clean:
-	rm -f *.o *.out
-	rm -f ../bin/$(TARGET).out
+	rm -f $(OBJS) $(TARGET)
+	rm -f ../bin/$(TARGET)
 
 exec: compile
-	./$(TARGET).out
+	./$(TARGET)
 
-compile:
-	gcc *.c -o $(TARGET).out $(LIBS) $(FLAGS)
+%.o: %.c %.h
+	 $(CC) -c $(CFLAGS) -o $@ $<
+
+compile: $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $^ $(LOCAL_LIBS) $(LIBS)
 	mkdir -p ../bin
-	cp $(TARGET).out ../bin/
+	cp $(TARGET) ../bin/

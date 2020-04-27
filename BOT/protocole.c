@@ -31,7 +31,6 @@ void send_status(int socket_tcp)
     if (write(socket_tcp, &bot->etat, sizeof(char)) < 0)
     {
         perror("[send_status]ERROR");
-        
     }
     //renvoieSucces(socket_tcp);
 }
@@ -290,7 +289,7 @@ void receive_cmd_TCP(void *arg)
         else
         {
             print_CU_structure(charge);
-            if(rm_charge(charge->nom) != 0)
+            if (rm_charge(charge->nom) != 0)
                 renvoieErreur(socket_tcp);
             else
                 renvoieSucces(socket_tcp);

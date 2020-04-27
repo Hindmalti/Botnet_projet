@@ -21,7 +21,7 @@
  */
 void send_file_tcp(void *s, char *filename)
 {
-
+    printf("send_file_tcpSTART\n");
     int socket_tcp = *((int *)s);
     int sent_bytes = 0;
     char file_size[256];
@@ -86,8 +86,8 @@ void send_command_tcp(ordre_t *ordre)
     int socket_tcp = init_socket_bot(ordre->bot);
     char num = ordre->cmd;
     char *filename = ordre->filename;
+    printf("file name dans send_cmd_tcp : %s \n", filename);
     char msg_recu[TAILLE_MSG_PROTOCOLE];
-    //bot_t bot;
     char msg;
     switch (num)
     {
@@ -105,11 +105,11 @@ void send_command_tcp(ordre_t *ordre)
         write(socket_tcp, &num, sizeof(char));
         write(socket_tcp, filename, TAILLE_FILENAME);
         send_file_tcp((void *)&socket_tcp, filename);
-        if (receiveTCP(socket_tcp, msg_recu, TAILLE_MSG_PROTOCOLE) < 0)
+       /*  if (receiveTCP(socket_tcp, msg_recu, TAILLE_MSG_PROTOCOLE) < 0)
         {
             fprintf(stderr, "Erreur dans la réception du renvoie du install_charge \n");
         }
-        printf("Le bot m'a répondu le code : %s\n", msg_recu);
+        printf("Le bot m'a répondu le code : %s\n", msg_recu); */
         break;
 
     case '3': //Demande d'exécuter le fichier

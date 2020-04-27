@@ -29,7 +29,7 @@ extern liste_bot_t list;
 typedef struct
 {
     char cmd;
-    char *filename;
+    char filename[TAILLE_FILENAME];
     bot_t *bot;
 } ordre_t;
 //void ecritureIDshmem(info_bot_t *bot);

@@ -81,11 +81,13 @@ char **str_split(char *a_str, const char a_delim)
 void getOrdreFromShm()
 {
     char *data;
-    if (lectureShm(KEY_DATA, (void *)&data, 1024) != 0) {
+    if (lectureShm(KEY_DATA, (void *)&data, 1024) != 0)
+    {
         DEBUG_PRINT(("[getOrdreFromShm]: Impossible de lire la shm\n"));
         return;
     }
-    if(strlen(data) == 0) {
+    if (strlen(data) == 0)
+    {
         DEBUG_PRINT(("[getOrdreFromShm]:La shared memory est vide\n"));
         return;
     }
@@ -95,31 +97,38 @@ void getOrdreFromShm()
     //Clean de la shm
     char **tokens;
     tokens = str_split(data_2, ',');
+    char id[8];
     ordre_t ordre;
     if (tokens)
     {
         int i;
         for (i = 0; *(tokens + i); i++)
         {
-
-            if (i % 3 == 0)
+            // data[0] => La CMD à envoyer au bot
+            if (i == 0)
             {
                 //*(tokens + i) ==> CMD
                 ordre.cmd = (char)**(tokens + i);
             }
             // data[2] => l'ID du bot
-            if (i % 3 == 2)
+            if (i == 2)
             {
                 //rechercher bot
-                rechercheBOT(*(tokens + i), &list_bot, &(ordre.bot));
+                strcpy(id, (char *)*(tokens + i));
+                id[strlen((id))-1]='\0';
+                rechercheBOT(id, &list_bot, &(ordre.bot));
                 if (ordre.bot != NULL)
                 {
+                    print_BOT_structure(ordre.bot);
                     send_command_tcp(&ordre);
                 }
             }
-            if (i % 3 == 1)
+            // data[1] => Le filename à envoyer au bot
+            if (i == 1)
             {
-                ordre.filename = strdup(*(tokens + i));
+                strcpy(ordre.filename, (char*)*(tokens + i));
+                printf("filename est : %s\n", ordre.filename);
+                //ordre.filename = (char) **(tokens + i);
             }
 
             free(*(tokens + i));
@@ -166,12 +175,6 @@ int traitementUDP(struct sockaddr_storage addr, void *payload, int taille)
         getShm(KEY, NBRE_MAX_BOT * sizeof(info_bot_t), &mem_adr);
         ecritureShm(mem_adr, (void *)array_bots, nbre_bot * sizeof(info_bot_t));
     }
-    //print_listeBot(list_bot);
-
-    // On compte le nbre de bots disponibles
-    //Création de la shmem pour écrire le tableau de liste
-
-    // création de la shmem pour écrire le nbre de bots
     return 0;
 }
 
@@ -190,14 +193,6 @@ void lancementBoucleServeurUDP(void *s)
     boucleServeurUDP(socket_udp, traitementUDP, sizeof(info_bot_t));
 }
 
-/* void partie_serveur()
-{
-
-    if (lanceThread(lancementBoucleServeurUDP, (void *)&socket_udp, sizeof(socket_udp)) < 0)
-    {
-        perror("boucleServeurUDP.lanceThread");
-        exit(-1);
-    } */
 /**
  * void partie_udp()
  * Fonction wrapper qui initialise le serveur UDP dans un thread

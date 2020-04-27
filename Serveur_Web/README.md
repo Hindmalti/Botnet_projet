@@ -20,9 +20,8 @@ Enfin :
 Pour observer ce qui se passe, retournez dans votre terminal où le serveur à été lancé.
 Normalement la requête POST aura été effectuée et vous devriez voir les différents headers.
 Vous pourrez voir le contenu de votre requete post.
-Ce contenu à été stocké dans une variable pour être réutiliser plus tard.
+Ce contenu a été stocké dans une variable pour être réutiliser plus tard.
 
-Prochaines étapes :
+Problème :
 
 - retirer les lignes contenant "content-disposition" dans le contenu du fichier.
-- envoyer les données obtenues dans une shm au CC.

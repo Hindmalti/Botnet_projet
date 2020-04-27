@@ -3,8 +3,10 @@
 
 #include <stdint.h>
 
+//TODO: Est-ce que ces define sont utiles ?
 #define SHM_KEY_CC (key_t)2000
 #define SHM_KEY_SERV (key_t)2010
+#define SEMAPHORE "/monsemaphore"
 
 
 #define SHM_SIZE 30

@@ -148,9 +148,9 @@ int rechercheCU(char *filename, liste_cu_t *liste, charge_utile_t **charge)
             current = (liste_cu_t)current->next;
         }
     }
-    perror("La charche utile n'est pas présente dans la liste\n");
+    //perror("La charche utile n'est pas présente dans la liste\n");
     *charge = NULL;
-    return 1;
+    return 0;
 }
 
 /** void rechercheBOT(char *id, liste_bot_t *list, bot_t **bot)
